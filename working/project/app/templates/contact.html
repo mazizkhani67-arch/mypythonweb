@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %} ارتباط با ما | شرکت مهندسی {% endblock %}
+
+{% block content %}
+     <header class="site-header">
+    <div class="container">
+      <h1>ارتباط با ما</h1>
+      <nav>
+        <a href="{{ url_for('main.home')}}">بازگشت</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="section">
+      <h3>شماره های تماس</h3>
+      <ul>
+        <li>نقشه برداری: 09171509800</li>
+        <li>طراحی: 09171500096</li>
+        <li>طراحی: 09171502549</li>
+        <li>آدرس: آباده- بلوار استقلال بعد از پارک گلها نرسیده به میدان بسیج روبروی فست فود تچر </li>
+      </ul>
+    </section>
+
+       <h1>ثبت نام کاربر جدید</h1>
+        <form method="POST" action="{{ url_for('main.contact') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+               <label for="phone">Phone:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button class = "submit" type="submit">Register</button>
+        </form>
+{% endblock %}

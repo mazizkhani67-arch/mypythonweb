@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %} صفحه اصلی {% endblock %}
+
+{% block content %}
+     
+    <h1>{{ page_title }}</h1>
+    <p> ساخته شده با flask</p>
+    <div></div>
+    <button onclick="location.href='/contact'"> تماس </button>
+    <button onclick="location.href='/about'"> درباره </button>
+    <button onclick="location.href='/services'">خدمات ما</button>
+    <div></div>
+    <a href="contact" class="btn">contact</a>
+    <a href = "about" class ="btn">درباره</a>
+    <p>
+    <button onclick="location.href='/form'">ارسال فرم</button>
+    </p>
+{% endblock %}

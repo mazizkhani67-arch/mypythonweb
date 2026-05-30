@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{page_title}}</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+    </head>
+    <body>
+        <h1>{{ page_title }}</h1>
+        <p> ساخته شده با flask</p>
+        <a href="contact" class="btn">contact</a>
+        <a href = "about" class ="btn">درباره</a>
+        <button onclick="location.href='/form'">ارسال فرم</button>
+    </body>
+</html>

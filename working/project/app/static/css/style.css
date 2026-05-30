@@ -1,0 +1,247 @@
+:root{
+    --main-color: #2563eb;
+    --shadow-color: #12b7e0;
+    --hover-color: #0749d6;
+    --body-color: #80a2eb;
+    --icon-color:#289CEB;
+    --main-font-family: Arial, Helvetica, sans-serif;
+}
+body {
+    direction: rtl;
+    text-align: center;
+    background-color: var(--body-color);
+    font-family: sans-serif;
+    margin: 40px 40px;
+    }
+
+.logo{
+    position:fixed;
+    top: 24px;
+    right: 24px;
+    border-radius: 30%;
+    width: 80px;
+    height: 60px;
+    z-index: 999;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 18);
+    border:0;
+   
+    pointer-events:painted;
+    
+    cursor: pointer;
+    background: var(--main-color);
+    
+}
+.logo:hover{
+    background: var(--hover-color);
+}
+
+div.container h1{
+    font-family: var(--main-font-family);
+    font: oblique;
+    color: var(--main-color);
+    color-scheme: inherit;
+    text-decoration:underline ;
+    
+}
+section.hero p{
+    font-family: var(--main-font-family);
+    font-size: 14pt;
+    color: var(--main-color)
+}
+div {
+    color: #ff9900;
+}
+p.designer{
+    color:rgb(255, 0, 221);
+       font-family: var(--main-font-family);
+    font-style: italic;
+   text-decoration:wavy;
+}
+a{
+    color: bisque;
+}
+h1.about{
+    font-family: var(--main-font-family);
+    outline-color: #444;
+    color: brown;
+}
+h2{
+    font-family: var(--main-font-family);
+    color:red
+}
+img.projects{
+    border-style:groove;
+    border-width: 10pt;
+    border-top-color: rgb(141, 67, 14);
+    border-left-color: chocolate;
+    border-right-color: chocolate;
+    border-bottom-color: rgb(241, 149, 83);
+    border-radius: 5pt;
+    height: 50vh;
+    width:60vw;
+    
+}
+h4{
+    font-family: var(--main-font-family);
+    color: var(--main-color);
+}
+p.desc{
+    font-family: var(--main-font-family);
+    color:rgb(107, 240, 19)
+}
+
+h1.office_name{
+    font-family: var(--main-font-family);
+    font-size: 10pt;
+    font-style: italic;
+    outline-color: #444;
+    color: rgb(226, 43, 43);
+}
+
+nav.home_back{
+   
+    z-index: 9999;
+    display: flex;
+    justify-content: flex-end;
+   cursor: progress;
+}
+
+.to_top{
+    position:fixed;
+    bottom: 24px;
+    left:24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 0;
+    background: var(--main-color);
+    color:#fff;
+    font-size: 25px;
+    font-weight: bolder;
+    cursor: pointer;
+    
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 18);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+    
+}
+.to_top:hover{
+    background: var(--hover-color);
+}
+.contact_us{
+    position:fixed;
+    top: 24px;
+    left: 80px;
+    border-radius: 50%;
+    width: 46px;
+    height: 46px;
+    z-index: 999;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 18);
+    border:0;
+   
+    pointer-events:painted;
+    
+    cursor: pointer;
+    background: var(--main-color);
+    
+}
+.contact_us:hover{
+    background:var(--hover-color);
+}
+
+.about_us{
+    position:fixed;
+    top: 24px;
+    left: 135px;
+    border-radius: 50%;
+    width: 48px;
+    height:48px;
+    z-index: 999;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 18);
+    border:0;
+    
+    pointer-events:painted;
+    
+    cursor: pointer;
+    background:var(--main-color);
+    
+}
+.about_us:hover{
+    background:var(--hover-color);
+}
+.m_services{
+    position:fixed;
+    top: 24px;
+    left: 24px;
+    border-radius: 50%;
+    width: 48px;
+    height:48px;
+    z-index: 999;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 18);
+    border:0;
+   
+    pointer-events: painted;
+    
+    cursor: pointer;
+    background:var(--main-color);
+    
+}
+.m_services:hover{
+    background:var(--hover-color);
+}
+
+
+
+
+
+
+
+@media (max-wwith: 768px){
+    .section {
+        width: 100%;
+    }
+}
+section.section{
+    width: 100%
+}
+
+label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 500;
+      color: #e91616;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #45d322;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-family: 'Vazirmatn', sans-serif;
+      font-size: 15px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #6a5acd;
+      box-shadow: 0 0 0 3px rgba(248, 244, 11, 0.87);
+    }
+button.submit{
+    color:  black;
+    background-color: var(--main-color);
+    cursor: pointer;
+}
+.submit:hover{
+    background-color: var(--hover-color);
+}
+
+
+
+

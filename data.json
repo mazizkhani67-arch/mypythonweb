@@ -1,0 +1,13 @@
+{
+    "name": "سارا",
+    "age": 25,
+    "is_student": true,
+    "courses": [
+        "ریاضی",
+        "فیزیک"
+    ],
+    "address": {
+        "street": "خیابان اصلی",
+        "city": "شهر"
+    }
+}
