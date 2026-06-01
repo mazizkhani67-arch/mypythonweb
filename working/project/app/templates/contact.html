@@ -25,11 +25,21 @@
 
        <h1>ثبت نام کاربر جدید</h1>
         <form method="POST" action="{{ url_for('main.contact') }}">
+              <div>
+                <label for="user_type">نوع کاربری:</label>
+                <select name="user_type" id="user_type" required>
+                    <option value="" disabled selected>انتخاب کنید</option>
+                    {% for t in types %}
+                          <option value="{{ t }}">{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div>
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>
             </div>
+
             <div>
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
@@ -44,4 +54,15 @@
             </div>
             <button class = "submit" type="submit">Register</button>
         </form>
+        <span class="flash_c">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        </span>
 {% endblock %}

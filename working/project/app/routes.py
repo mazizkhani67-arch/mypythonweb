@@ -23,39 +23,63 @@ SAMPLE_PROJECTS = [
         "cover_image": "img/project3.png",
     },
 ]
-
 @main.route("/")
+def landing():
+    return render_template('landing.html')
+
+@main.route("/index")
 def home():
     # فعلاً از SAMPLE_PROJECTS برای قالب استفاده می‌کنیم
     # بعداً پروژه‌ها را از دیتابیس می‌گیریم
     return render_template('index.html', projects=SAMPLE_PROJECTS)
-    
+
+
 @main.route("/contact", methods=['GET', 'POST'])
 def contact():
-    
-    if request.method == 'POST':
-            username = request.form['username']
-            email = request.form['email']
-            phone=request.form['phone']
-            password = request.form['password']
+    TYPES = ["مشتری", "همکار", "بازدید کننده"]
 
-            # بررسی اینکه آیا کاربر با این نام کاربری یا ایمیل وجود دارد
+    if request.method == 'POST':
+        print("FORM DATA:", request.form)
+
+        username = request.form.get('username')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        password = request.form.get('password')
+        usertype = request.form.get('user_type')
+
+        # ----- تغییرات این قسمت -----
+        try:
             existing_user = User.query.filter_by(username=username).first() or \
                             User.query.filter_by(email=email).first()
             if existing_user:
-                # نمایش پیام خطا به کاربر
-                return "Username or email already exists!" # باید این را بهتر مدیریت کنید (مثلا با flash messages)
+                flash("این نام کاربری یا ایمیل قبلاً ثبت شده است.", "danger")
+                return redirect(url_for('main.contact'))
 
-            # هش کردن پسورد قبل از ذخیره
             hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
-            new_user = User(username=username, email=email, phone= phone ,password_hash=hashed_password)
+            new_user = User(
+                username=username,
+                email=email,
+                phone=phone,
+                password_hash=hashed_password,
+                usertype=usertype
+            )
+
             db.session.add(new_user)
-            db.session.commit()
+            db.session.commit() # اینجا احتمالاً خطا رخ می‌دهد
 
-            return redirect(url_for('main.home')) # یا صفحه موفقیت آمیز ثبت نام
+            flash("ثبت‌نام با موفقیت انجام شد.", "success")
+            return redirect(url_for('main.home'))
 
-    return render_template('contact.html')   
+        except Exception as e:
+            db.session.rollback() # برای اطمینان از برگشت تراکنش در صورت خطا
+            print(f"Database Error: {e}") # چاپ خطا در کنسول
+            flash(f"خطا در ثبت اطلاعات: {e}", "danger") # نمایش خطا به کاربر
+            return redirect(url_for('main.contact'))
+        # ----- پایان تغییرات -----
+
+    return render_template('contact.html', types=TYPES)
+   
 
 
 @main.route("/aboout")

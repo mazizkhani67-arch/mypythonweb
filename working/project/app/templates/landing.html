@@ -2,14 +2,19 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" >
     <title>به وب‌سایت ما خوش آمدید!</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <!-- اصلاح شده: url_for مستقیماً در href قرار گرفته -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel=""
 </head>
 <body>
     <div class="container2">
         <div class="image-container">
-            <img id="animated-image" src="url_for{{'static',filename='img/landing.png'}}" alt="تصویر خوش‌آمدگویی">
+            <!-- اصلاح شده: url_for مستقیماً در src قرار گرفته -->
+            <img id="animated-image" src="{{ url_for('static', filename='img/landing.png') }}" 
+            alt="تصویر خوش‌آمدگویی" data_url ="{{ url_for('main.home') }}"> 
+            <!-- توجه: اگر main.home یک blueprint است، این درست است. اگر نه، فقط home را استفاده کنید. -->
         </div>
         <h1>به زودی...</h1>
         <p>لطفاً کمی صبر کنید. صفحه اصلی وب‌سایت ما در حال بارگذاری است.</p>
@@ -17,12 +22,14 @@
 
     <script>
         const animatedImage = document.getElementById('animated-image');
-        const redirectTime = 5000; // 5 ثانیه انتظار
-        const homePageUrl = 'index.html'; // آدرس صفحه اصلی شما
+        const redirectTime = 3000; // 5 ثانیه انتظار
+        // استفاده از آدرس صفحه اصلی که از attribute تصویر گرفته شده
+        const homePageUrl = animatedImage.getAttribute('data_url'); 
 
         // افزودن کلاس برای انیمیشن fade-in پس از بارگذاری کامل صفحه
         window.addEventListener('load', () => {
-            animatedImage.classList.add('fade-in');
+            // مطمئن شوید کلاس fade-in در CSS تعریف شده است
+            animatedImage.classList.add('fade-in'); 
         });
 
         // هدایت کاربر پس از زمان مشخص شده

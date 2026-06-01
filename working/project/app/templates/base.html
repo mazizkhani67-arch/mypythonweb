@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>خانه | شرکت مهندسی</title>
   <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
-  <img class="to_top" id="toTop" aria-label="بازگشت به بالا"
+        <img class="to_top" id="toTop" aria-label="بازگشت به بالا"
         src = "{{url_for('static',filename='icon/up.png')}}">
       
         <img class="contact_us" id="contact" aria-label="تماس با ما" 
@@ -16,7 +16,9 @@
         <img class="m_services" id="mservices" aria-label="خدمات" 
         src = "{{url_for('static',filename='icon/services.png')}}"
         data_url = "{{url_for('main.services')}}">
-        
+        <img class="home_bt" id="homebt" aria-label="خانه"
+        src = "{{url_for('static',filename='icon/home.png')}}"
+        data_url = "{{url_for('main.home')}}">
         <script>
           const btn=document.getElementById('toTop')
           window.addEventListener('scroll',()=> {
@@ -30,22 +32,28 @@
           const url1 = call1.getAttribute('data_url')
           
           call1.addEventListener('click',()=>{
-            window.open(url1)
+            window.open(url1,"_self")
           })
           const about1=document.getElementById('aboutus')
           const url2 = about1.getAttribute('data_url')
           
           
           about1.addEventListener('click',()=>{
-            window.open(url2)
+            window.open(url2,"_self")
           })
           const services1 = document.getElementById('mservices')
           const url3 = services1.getAttribute('data_url')
           
           services1.addEventListener('click',()=>{
-            window.open(url3)
+            window.open(url3,"_self")
           })
+          const homebt1 = document.getElementById('homebt')
+          const url5 = homebt1.getAttribute('data_url')
           
+          homebt1.addEventListener('click',()=>{
+            window.open(url5,"_self")
+            
+          })
         </script>
   <div class="shadow ">
     
