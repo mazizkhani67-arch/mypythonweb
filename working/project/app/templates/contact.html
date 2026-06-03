@@ -10,6 +10,7 @@
         <a href="{{ url_for('main.home')}}">بازگشت</a>
       </nav>
     </div>
+    
   </header>
 
   <main class="container">
@@ -54,15 +55,6 @@
             </div>
             <button class = "submit" type="submit">Register</button>
         </form>
-        <span class="flash_c">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }}">
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-        </span>
+
+
 {% endblock %}

@@ -1,6 +1,6 @@
 from app import create_app
 import config
-
+from app.models import User
 
 import os
 

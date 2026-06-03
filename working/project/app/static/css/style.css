@@ -211,6 +211,28 @@ nav.home_back{
 .home_bt{
     background:var(--hover-color);
 }
+
+.log_bt{
+    position:fixed;
+    top: 24px;
+    left: 245px;
+    border-radius: 50%;
+    width: 48px;
+    height:48px;
+    z-index: 999;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 18);
+    border:0;
+   
+    pointer-events: painted;
+    
+    cursor: pointer;
+    background:var(--main-color);
+    
+}
+.log_bt{
+    background:var(--hover-color);
+}
+
 @media (max-wwith: 768px){
     .section {
         width: 100%;

@@ -2,72 +2,54 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="utf-8">
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <title>خانه | شرکت مهندسی</title>
-  <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
-        <img class="to_top" id="toTop" aria-label="بازگشت به بالا"
-        src = "{{url_for('static',filename='icon/up.png')}}">
-      
-        <img class="contact_us" id="contact" aria-label="تماس با ما" 
-        src="{{url_for('static',filename='icon/call.png')}}" 
-        data_url="{{url_for('main.contact')}}">
-        <img class="about_us" id="aboutus" aria-label="درباره ما" 
-        src = "{{url_for('static',filename='icon/info.png')}}"
-        data_url = "{{url_for('main.about')}}">
-        <img class="m_services" id="mservices" aria-label="خدمات" 
-        src = "{{url_for('static',filename='icon/services.png')}}"
-        data_url = "{{url_for('main.services')}}">
-        <img class="home_bt" id="homebt" aria-label="خانه"
-        src = "{{url_for('static',filename='icon/home.png')}}"
-        data_url = "{{url_for('main.home')}}">
-        <script>
-          const btn=document.getElementById('toTop')
-          window.addEventListener('scroll',()=> {
-            btn.style.opacity = window.scrollY > 300 ? '1' : '0';
-            btn.style.pointerEvents = window.scrollY > 300 ? 'auto' : 'none';
-          });
-          btn.addEventListener('click',()=>{
-            window.scrollTo({top: 0,behavior: 'smooth'});
-          })
-          const call1=document.getElementById('contact')
-          const url1 = call1.getAttribute('data_url')
+        <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+        <nav>
+          <img class="to_top" id="toTop" aria-label="بازگشت به بالا"
+          src = "{{url_for('static',filename='icon/up.png')}}">
+        
+          <img class="contact_us" id="contact" aria-label="تماس با ما" 
+          src="{{url_for('static',filename='icon/call.png')}}" 
+          data_url="{{url_for('main.contact')}}">
+          <img class="about_us" id="aboutus" aria-label="درباره ما" 
+          src = "{{url_for('static',filename='icon/info.png')}}"
+          data_url = "{{url_for('main.about')}}">
+          <img class="m_services" id="mservices" aria-label="خدمات" 
+          src = "{{url_for('static',filename='icon/services.png')}}"
+          data_url = "{{url_for('main.services')}}">
+          <img class="home_bt" id="homebt" aria-label="خانه"
+          src = "{{url_for('static',filename='icon/home.png')}}"
+          data_url = "{{url_for('main.home')}}">
+            {% if current_user.is_authenticated %}
+              <img class="log_bt" id="logoutbt" aria-label="دکمه خروج"
+              src = "{{url_for('static',filename='icon/logout.png')}}"
+              data_url = "{{url_for('main.logout')}}">
+            {% else %}
+              <img class="log_bt" id="loginbt" aria-label="صفحه ورود"
+              src = "{{url_for('static',filename='icon/login.png')}}"
+              data_url = "{{url_for('main.login')}}">
+            {% endif %}
           
-          call1.addEventListener('click',()=>{
-            window.open(url1,"_self")
-          })
-          const about1=document.getElementById('aboutus')
-          const url2 = about1.getAttribute('data_url')
-          
-          
-          about1.addEventListener('click',()=>{
-            window.open(url2,"_self")
-          })
-          const services1 = document.getElementById('mservices')
-          const url3 = services1.getAttribute('data_url')
-          
-          services1.addEventListener('click',()=>{
-            window.open(url3,"_self")
-          })
-          const homebt1 = document.getElementById('homebt')
-          const url5 = homebt1.getAttribute('data_url')
-          
-          homebt1.addEventListener('click',()=>{
-            window.open(url5,"_self")
-            
-          })
-        </script>
+        </nav>
+
+
+
+
+
+
+
+
+
+
+
+
   <div class="shadow ">
     
       
         <img  class="logo" id="mlogo" src="{{url_for('static',filename='logo/logo4.jpg')}}"
         data_url = "{{url_for('main.home')}}"> 
-       <script>
-        const logo2=document.getElementById('mlogo')
-        const url4 = logo2.getAttribute('data_url')
-
-          logo2.addEventListener('click',()=>{
-            window.open(url4)
-          })
-       </script>
+       
       
    
    
@@ -75,7 +57,21 @@
   
 </head>
 <body>
-
+      
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <script>
+                Swal.fire({
+                  title: 'پیام',
+                  text: {{ message|tojson }},
+                  icon: {{ ('success' if category == 'success' else 'error' if category == 'danger' else 'info') | tojson }}
+                });
+              </script>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+       
         
         
         {% block content %}
@@ -86,7 +82,36 @@
               طراحی سایت توسط مهندس محمد عزیزخانی
           </p>      
         </nav>
-        
+      <script>
+            function setupnavigation(id){
+              const element = document.getElementById(id);
+              if (element) {
+                const url = element.getAttribute('data_url');
+                element.addEventListener('click', () => {
+                window.open(url, "_self");
+                });
+              }
+            }
+            setupnavigation('contact');
+            setupnavigation('aboutus');
+            setupnavigation('mservices');
+            setupnavigation('homebt');
+            setupnavigation('logoutbt');
+            setupnavigation('loginbt');
+            setupnavigation('mlogo');
+            const btn=document.getElementById('toTop')
+            window.addEventListener('scroll',()=> {
+              btn.style.opacity = window.scrollY > 300 ? '1' : '0';
+              btn.style.pointerEvents = window.scrollY > 300 ? 'auto' : 'none';
+            });
+            btn.addEventListener('click',()=>{
+              window.scrollTo({top: 0,behavior: 'smooth'});
+            })
+            
+      </script>
+
+
+    
     </body>
    
 </html>

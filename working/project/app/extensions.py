@@ -8,3 +8,7 @@ db = SQLAlchemy()
 migrate = Migrate() 
 login_manager = LoginManager()
 csrf = CSRFProtect()
+
+
+login_manager.login_message = "لطفاً برای دسترسی به این صفحه وارد شوید."
+login_manager.login_message_category = "info" # برای استایل‌دهی فلش مسیج
