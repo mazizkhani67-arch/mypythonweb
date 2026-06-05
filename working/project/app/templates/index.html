@@ -30,15 +30,15 @@
             <div class="grid">
                 {% for c in contents %}
                     <article class="card">
-                        {% if c.image_file and p.image_file != 'default_content.jpg' %}
-                            <img class="contents" src="{{ url_for('static', filename='uploads/contents/' + c.image_file) }}" alt="{{ c.title }}">
+                        {% if c.image_file and c.image_file != 'default_content.jpg' %}
+                            <img class="contents" src="{{ url_for('static', filename='uploads/content/' + c.image_file) }}" alt="{{ c.title }}">
                         {% else %}
-                            <img class="contents" src="{{ url_for('static', filename='img/contents/default_content.jpg') }}" alt="{{ p.title }}">
+                            <img class="contents" src="{{ url_for('static', filename='img/content/default_content.jpg') }}" alt="{{ c.title }}">
                         {% endif %}
-                        <h4>{{ p.title }}</h4>
-                        <p class="desc">{{ p.source_name }}</p>
-                        <p class="desc">{{ p.location or '' }}</p>
-                        <a class="link" href="{{ url_for('main.content_detail', content_id=p.id) }}">مشاهده جزئیات</a>
+                        <h4>{{ c.title }}</h4>
+                        <p class="desc">{{ c.source_name }}</p>
+                        <p class="desc">{{ c.location or '' }}</p>
+                        <a class="link" href="{{ url_for('main.content_detail', content_id=c.id) }}">مشاهده جزئیات</a>
                     </article>
                 {% endfor %}
             </div>

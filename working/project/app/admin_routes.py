@@ -50,65 +50,40 @@ def manage_users():
 @login_required
 @super_admin_required
 def add_user():
-    print("=== تابع add_user فراخوانی شد ===")  # برای دیباگ
-    
     if request.method == 'POST':
-        print("متد POST دریافت شد")
-        
         username = request.form.get('username')
         email = request.form.get('email')
         phone = request.form.get('phone')
         password = request.form.get('password')
         usertype = request.form.get('usertype')
         
-        print(f"Username: {username}")
-        print(f"Email: {email}")
-        print(f"Phone: {phone}")
-        print(f"Usertype: {usertype}")
-        
-        # اعتبارسنجی
-        if not username or not email or not phone or not password:
-            flash('تمامی فیلدها الزامی هستند!', 'danger')
-            print("خطا: فیلدهای الزامی پر نشده")
-            return redirect(url_for('admin.add_user'))
-        
         # بررسی تکراری نبودن
         if User.query.filter_by(username=username).first():
             flash('نام کاربری تکراری است!', 'danger')
-            print("خطا: نام کاربری تکراری")
             return redirect(url_for('admin.add_user'))
         
         if User.query.filter_by(email=email).first():
             flash('ایمیل تکراری است!', 'danger')
-            print("خطا: ایمیل تکراری")
             return redirect(url_for('admin.add_user'))
         
-        try:
-            # ایجاد کاربر جدید
-            new_user = User(
-                username=username,
-                email=email,
-                phone=phone,
-                usertype=usertype,
-                is_super_admin=(usertype == 'super_admin')
-            )
-            new_user.password = password
-            
-            db.session.add(new_user)
-            db.session.commit()
-            
-            print(f"کاربر {username} با موفقیت اضافه شد!")
-            flash('کاربر با موفقیت اضافه شد!', 'success')
-            return redirect(url_for('admin.manage_users'))
-            
-        except Exception as e:
-            db.session.rollback()
-            print(f"خطا در ذخیره: {e}")
-            flash(f'خطا در ذخیره کاربر: {str(e)}', 'danger')
+        if User.query.filter_by(phone=phone).first():  # اضافه کردن بررسی تلفن
+            flash('شماره تلفن تکراری است!', 'danger')
             return redirect(url_for('admin.add_user'))
+        
+        new_user = User(
+            username=username,
+            email=email,
+            phone=phone,
+            usertype=usertype,
+            is_super_admin=(usertype == 'super_admin')
+        )
+        new_user.password = password
+        db.session.add(new_user)
+        db.session.commit()
+        
+        flash('کاربر با موفقیت اضافه شد!', 'success')
+        return redirect(url_for('admin.manage_users'))
     
-    # درخواست GET
-    print("نمایش فرم افزودن کاربر")
     return render_template('admin/add_user.html')
 
 @admin_bp.route('/user/edit/<int:user_id>', methods=['GET', 'POST'])
@@ -164,10 +139,10 @@ def add_content():
         try:
             # دریافت اطلاعات فرم (بدون created_by)
             content = Content(
-                source_name=request.form.get('source_name'),
+                employer_name=request.form.get('employer_name'),
                 title=request.form.get('title'),
-                location=request.form.get('location'),
-                project_type=request.form.get('content_type'),
+                address=request.form.get('address'),
+                content_type=request.form.get('content_type'),
                 short_description=request.form.get('short_description'),
                 full_content=request.form.get('full_content'),
                 video_url=request.form.get('video_url'),
@@ -197,7 +172,7 @@ def add_content():
             db.session.commit()
             
             flash('محتوا با موفقیت اضافه شد!', 'success')
-            return redirect(url_for('admin.manage_content'))
+            return redirect(url_for('admin.manage_contents'))
             
         except Exception as e:
             db.session.rollback()
@@ -219,7 +194,7 @@ def edit_content(content_id):
             # به‌روزرسانی اطلاعات (بدون created_by)
             content.source_name = request.form.get('source_name')
             content.title = request.form.get('title')
-            content.location = request.form.get('location')
+            content.address = request.form.get('address')
             content.content_type = request.form.get('content_type')
             content.short_description = request.form.get('short_description')
             content.full_content = request.form.get('full_content')
@@ -267,7 +242,7 @@ def delete_content(content_id):
     content = Content.query.get_or_404(content_id)
     
     # حذف فایل تصویر (اگر وجود داشته باشد)
-    if content.image_file and content.image_file != 'default_project.jpg':
+    if content.image_file and content.image_file != 'default_content.jpg':
         file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], content.image_file)
         if os.path.exists(file_path):
             os.remove(file_path)
@@ -281,8 +256,8 @@ def delete_content(content_id):
 @admin_bp.route('/content/toggle/<int:content_id>')
 @login_required
 @super_admin_required
-def toggle_content(project_id):
-    content = Content.query.get_or_404(project_id)
+def toggle_content(content_id):
+    content = Content.query.get_or_404(content_id)
     content.is_visible = not content.is_visible
     db.session.commit()
     

@@ -24,7 +24,7 @@
                 <td>{{ content.id }}</td>
                 <td>
                     {% if content.image_file and content.image_file != 'default_content.jpg' %}
-                        <img src="{{ url_for('static', filename='uploads/contents/' + content.image_file) }}" style="width: 50px;">
+                        <img src="{{ url_for('static', filename='uploads/content/' + content.image_file) }}" style="width: 50px;">
                     {% else %}
                         <span class="text-muted">بدون تصویر</span>
                     {% endif %}

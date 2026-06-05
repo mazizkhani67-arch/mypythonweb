@@ -58,18 +58,18 @@
             </tr>
         </thead>
         <tbody>
-            {% for project in projects %}
+            {% for content in contents %}
             <tr>
-                <td>{{ project.id }}</td>
-                <td>{{ project.employer }}</td>
-                <td>{{ project.title }}</td>
-                <td>{{ project.address }}</td>
-                <td>{{ project.image_file }}</td>
-                <td>{{ project.project_type }}</td>
-                <td>{{ project.is_visible }}</td>
-                <td>{{ project.created_at }}</td>
+                <td>{{ content.id }}</td>
+                <td>{{ content.employer }}</td>
+                <td>{{ content.title }}</td>
+                <td>{{ content.address }}</td>
+                <td>{{ content.image_file }}</td>
+                <td>{{ content.content_type }}</td>
+                <td>{{ content.is_visible }}</td>
+                <td>{{ content.created_at }}</td>
                 <td>
-                    {% if project.is_visible %}
+                    {% if content.is_visible %}
                     <span class="badge badge-danger">بله</span>
                     {% else %}
                     <span class="badge badge-secondary">خیر</span>

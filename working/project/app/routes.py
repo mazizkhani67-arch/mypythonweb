@@ -19,16 +19,16 @@ def home():
     active_contents = Content.query.filter_by(is_visible=True).order_by(Content.created_at.desc()).all()
     if not active_contents:
         SAMPLE_CONTENTS = [
-            {"title": "پروژه اداری جعفرپور", "description": "طراحی و اجرای معماری با تمرکز بر نورگیری.", "cover_image": "img/projects/project1.png"},
-            {"title": "پروژه مسکونی روشن", "description": "طراحی نما و چیدمان کاربری.", "cover_image": "img/projects/project2.jpg"},
-            {"title": "پروژه اداری آزمایشگاه رستگار", "description": "پلان‌های استاندارد و جزئیات اجرایی.", "cover_image": "img/projects/project2.png"},
+            {"title": "پروژه اداری جعفرپور", "description": "طراحی و اجرای معماری با تمرکز بر نورگیری.", "cover_image": "img/contents/content1.png"},
+            {"title": "پروژه مسکونی روشن", "description": "طراحی نما و چیدمان کاربری.", "cover_image": "img/contents/content2.jpg"},
+            {"title": "پروژه اداری آزمایشگاه رستگار", "description": "پلان‌های استاندارد و جزئیات اجرایی.", "cover_image": "img/contents/content2.png"},
         ]
-        return render_template('index.html', projects=SAMPLE_CONTENTS)
-    return render_template('index.html', projects=active_contents)
+        return render_template('index.html', contents=SAMPLE_CONTENTS)
+    return render_template('index.html', contents=active_contents)
 # app/routes.py
 @main.route("/content/<int:content_id>")
 @login_required
-def project_detail(content_id):
+def content_detail(content_id):
     content = Content.query.get_or_404(content_id)
     return render_template('content_detail.html', content=content)
 
@@ -62,24 +62,30 @@ def register():
     form = RegistrationForm()
 
     if form.validate_on_submit():
-        # بررسی تکراری نبودن
+        # بررسی تکراری نبودن نام کاربری، ایمیل و تلفن
         existing_user = User.query.filter(
-            (User.username == form.username.data) | (User.email == form.email.data)
+            (User.username == form.username.data) | 
+            (User.email == form.email.data) | 
+            (User.phone == form.phone.data)  # اضافه کردن بررسی تلفن
         ).first()
         
         if existing_user:
-            flash("نام کاربری یا ایمیل قبلاً ثبت شده است.", "danger")
+            if existing_user.username == form.username.data:
+                flash("این نام کاربری قبلاً ثبت شده است.", "danger")
+            elif existing_user.email == form.email.data:
+                flash("این ایمیل قبلاً ثبت شده است.", "danger")
+            elif existing_user.phone == form.phone.data:
+                flash("این شماره تلفن قبلاً ثبت شده است.", "danger")
             return redirect(url_for('main.register'))
 
-        # ایجاد کاربر جدید - اصلاح شده
+        # ایجاد کاربر جدید
         new_user = User(
             username=form.username.data,
             email=form.email.data,
             phone=form.phone.data,
-            usertype="کاربر عادی",
-            is_super_admin=False  # کاربران عادی سوپر ادمین نیستند
+            usertype=form.usertype.data,
+            is_super_admin=False
         )
-        # استفاده از setter password به جای مستقیم password_hash
         new_user.password = form.password.data
 
         db.session.add(new_user)

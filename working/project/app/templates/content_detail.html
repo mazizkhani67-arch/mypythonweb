@@ -6,14 +6,14 @@
 <div class="container mt-4">
     <h1>{{ content.title }}</h1>
     
-    <div class="project-detail">
+    <div class="content-detail">
         {% if content.image_file and content.image_file != 'default_content.jpg' %}
-            <img src="{{ url_for('static', filename='uploads/contents/' + content.image_file) }}" 
+            <img src="{{ url_for('static', filename='uploads/content/' + content.image_file) }}" 
      
                  alt="{{ content.title }}" class="img-fluid">
         {% endif %}
         
-        <div class="project-info">
+        <div class="content-info">
             <p><strong>کارفرما:</strong> {{ content.source_name }}</p>
             <p><strong>نوع محتوا:</strong> {{ content.content_type }}</p>
             <p><strong>آدرس:</strong> {{ content.location or 'نامشخص' }}</p>

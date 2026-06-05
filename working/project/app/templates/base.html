@@ -9,34 +9,10 @@
 <body>
   <!-- نوار ناوبری بالای صفحه (آیکون‌ها) -->
   <nav>
+    <img class="menu" id="menubt" aria-label="منو"
+         src="{{url_for('static',filename='icon/menu.png')}}">
     <img class="to_top" id="toTop" aria-label="بازگشت به بالا"
          src="{{url_for('static',filename='icon/up.png')}}">
-    
-    <img class="contact_us" id="contact" aria-label="تماس با ما" 
-         src="{{url_for('static',filename='icon/register.png')}}" 
-         data_url="{{url_for('main.register')}}">
-    
-    <img class="about_us" id="aboutus" aria-label="درباره ما" 
-         src="{{url_for('static',filename='icon/info.png')}}"
-         data_url="{{url_for('main.about')}}">
-    
-    <img class="m_services" id="mservices" aria-label="خدمات" 
-         src="{{url_for('static',filename='icon/services.png')}}"
-         data_url="{{url_for('main.services')}}">
-    
-    <img class="home_bt" id="homebt" aria-label="خانه"
-         src="{{url_for('static',filename='icon/home.png')}}"
-         data_url="{{url_for('main.home')}}">
-    
-    {% if current_user.is_authenticated %}
-      <img class="log_bt" id="logoutbt" aria-label="دکمه خروج"
-           src="{{url_for('static',filename='icon/logout.png')}}"
-           data_url="{{url_for('main.logout')}}">
-    {% else %}
-      <img class="log_bt" id="loginbt" aria-label="صفحه ورود"
-           src="{{url_for('static',filename='icon/login.png')}}"
-           data_url="{{url_for('main.login')}}">
-    {% endif %}
   </nav>
 
   <!-- لوگو -->
@@ -45,39 +21,86 @@
          data_url="{{url_for('main.home')}}"> 
   </div>
 
-  <!-- منوی اصلی سایت -->
-  <ul class="nav-menu">
-    <li><a href="{{ url_for('main.home') }}">خانه</a></li>
-    <li><a href="{{ url_for('main.services') }}">خدمات</a></li>
-    <li><a href="{{ url_for('main.about') }}">درباره ما</a></li>
-    <li><a href="{{ url_for('main.contact') }}">تماس با ما</a></li>
-    
-    {% if current_user.is_authenticated %}
-      <li><a href="{{ url_for('main.logout') }}">خروج ({{ current_user.username }})</a></li>
+  <!-- منوی آبشاری (ساید منو) -->
+  <div class="side-menu" id="sideMenu">
+    <div class="side-menu-header">
+      <h3>منوی اصلی</h3>
+      <button class="close-menu" id="closeMenuBtn">✕</button>
+    </div>
+    <div class="side-menu-items">
+      <!-- آیتم‌های اصلی منو -->
+      <div class="menu-item" data-url="{{ url_for('main.home') }}">
+        <img src="{{url_for('static',filename='icon/home.png')}}" alt="خانه">
+        <span>خانه</span>
+      </div>
+      <div class="menu-item" data-url="{{ url_for('main.services') }}">
+        <img src="{{url_for('static',filename='icon/services.png')}}" alt="خدمات">
+        <span>خدمات</span>
+      </div>
+      <div class="menu-item" data-url="{{ url_for('main.about') }}">
+        <img src="{{url_for('static',filename='icon/info.png')}}" alt="درباره ما">
+        <span>درباره ما</span>
+      </div>
+      <div class="menu-item" data-url="{{ url_for('main.contact') }}">
+        <img src="{{url_for('static',filename='icon/call.png')}}" alt="تماس با ما">
+        <span>تماس با ما</span>
+      </div>
       
-      {% if current_user.is_super_admin %}
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-            👑 پنل مدیریت
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">📊 داشبورد</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ url_for('admin.manage_users') }}">👥 مدیریت کاربران</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('admin.manage_contents') }}">📁 مدیریت محتوا</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('admin.manage_messages') }}">💬 مدیریت پیام‌ها</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ url_for('admin.add_user') }}">➕ افزودن کاربر</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('admin.add_content') }}">➕ افزودن محتوا</a></li>
-          </ul>
-        </li>
+      <!-- منوی مدیریت برای سوپر ادمین (زیرمنو) -->
+      {% if current_user.is_authenticated and current_user.is_super_admin %}
+      <div class="menu-item has-submenu" id="adminSubmenuBtn">
+        <div class="menu-item-header">
+          <img src="{{url_for('static',filename='icon/settings.png')}}" alt="مدیریت">
+          <span>پنل مدیریت</span>
+          <span class="submenu-arrow">▼</span>
+        </div>
+        <div class="submenu-items" id="adminSubmenu">
+          <div class="menu-item submenu-item" data-url="{{ url_for('admin.dashboard') }}">
+            <span>📊 داشبورد</span>
+          </div>
+          <div class="menu-item submenu-item" data-url="{{ url_for('admin.manage_users') }}">
+            <span>👥 مدیریت کاربران</span>
+          </div>
+          <div class="menu-item submenu-item" data-url="{{ url_for('admin.manage_contents') }}">
+            <span>📁 مدیریت محتوا</span>
+          </div>
+          <div class="menu-item submenu-item" data-url="{{ url_for('admin.manage_messages') }}">
+            <span>💬 مدیریت پیام‌ها</span>
+          </div>
+          <div class="divider"></div>
+          <div class="menu-item submenu-item" data-url="{{ url_for('admin.add_user') }}">
+            <span>➕ افزودن کاربر</span>
+          </div>
+          <div class="menu-item submenu-item" data-url="{{ url_for('admin.add_content') }}">
+            <span>➕ افزودن محتوا</span>
+          </div>
+        </div>
+      </div>
       {% endif %}
       
-    {% else %}
-      <li><a href="{{ url_for('main.login') }}">ورود</a></li>
-      <li><a href="{{ url_for('main.register') }}">ثبت‌نام</a></li>
-    {% endif %}
-  </ul>
+      <!-- بخش ورود/خروج -->
+      {% if current_user.is_authenticated %}
+        <div class="menu-item" data-url="{{ url_for('main.logout') }}">
+          <img src="{{url_for('static',filename='icon/logout.png')}}" alt="خروج">
+          <span>خروج ({{ current_user.username }})</span>
+        </div>
+      {% else %}
+      <div class="menu-item" data-url="{{ url_for('main.register') }}">
+          <img src="{{url_for('static',filename='icon/register.png')}}" alt="ثبت‌نام">
+          <span>ثبت‌نام</span>
+        </div>
+        <div class="menu-item" data-url="{{ url_for('main.login', next=request.path) }}">
+          <img src="{{url_for('static',filename='icon/login.png')}}" alt="ورود">
+          <span>ورود</span>
+      </div>
+        </div>
+        
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- اوورلی برای بستن منو -->
+  <div class="menu-overlay" id="menuOverlay"></div>
 
   <!-- پیام‌های فلش با SweetAlert -->
   {% with messages = get_flashed_messages(with_categories=true) %}
@@ -116,14 +139,8 @@
       }
     }
     
-    setupnavigation('contact');
-    setupnavigation('aboutus');
-    setupnavigation('mservices');
-    setupnavigation('homebt');
-    setupnavigation('logoutbt');
-    setupnavigation('loginbt');
     setupnavigation('mlogo');
-    
+     
     const btn = document.getElementById('toTop');
     window.addEventListener('scroll', () => {
       btn.style.opacity = window.scrollY > 300 ? '1' : '0';
@@ -132,6 +149,84 @@
     
     btn.addEventListener('click', () => {
       window.scrollTo({top: 0, behavior: 'smooth'});
+    });
+
+    // ========== منوی کناری با آیکون‌ها ==========
+    const menuButton = document.getElementById('menubt');
+    const sideMenu = document.getElementById('sideMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+
+    // باز کردن منو
+    function openMenu() {
+      sideMenu.classList.add('open');
+      menuOverlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // بستن منو
+    function closeMenu() {
+      sideMenu.classList.remove('open');
+      menuOverlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    // کلیک روی دکمه منو
+    if (menuButton) {
+      menuButton.addEventListener('click', openMenu);
+    }
+
+    // کلیک روی دکمه بستن
+    if (closeMenuBtn) {
+      closeMenuBtn.addEventListener('click', closeMenu);
+    }
+
+    // کلیک روی اوورلی
+    if (menuOverlay) {
+      menuOverlay.addEventListener('click', closeMenu);
+    }
+
+    // کلیک روی آیتم‌های اصلی منو
+    const menuItems = document.querySelectorAll('.menu-item[data-url]');
+    menuItems.forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const url = this.getAttribute('data-url');
+        if (url) {
+          window.location.href = url;
+        }
+      });
+    });
+
+    // ========== زیرمنوی مدیریت ==========
+    const adminSubmenuBtn = document.getElementById('adminSubmenuBtn');
+    const adminSubmenu = document.getElementById('adminSubmenu');
+    
+    if (adminSubmenuBtn && adminSubmenu) {
+      adminSubmenuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.classList.toggle('open');
+        adminSubmenu.classList.toggle('show');
+      });
+    }
+
+    // کلیک روی زیرآیتم‌های منوی مدیریت
+    const submenuItems = document.querySelectorAll('.submenu-item');
+    submenuItems.forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const url = this.getAttribute('data-url');
+        if (url) {
+          window.location.href = url;
+        }
+      });
+    });
+
+    // بستن منو با کلید Escape
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && sideMenu.classList.contains('open')) {
+        closeMenu();
+      }
     });
   </script>
 </body>

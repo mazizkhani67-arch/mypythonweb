@@ -4,43 +4,43 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>ویرایش پروژه: {{ project.title }}</h2>
+    <h2>ویرایش پروژه: {{ content.title }}</h2>
     
     <form method="POST" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}">
         
         <div class="form-group mb-3">
             <label for="employer_name">نام کارفرما:</label>
-            <input type="text" class="form-control" id="employer_name" name="employer_name" value="{{ project.employer_name }}" required>
+            <input type="text" class="form-control" id="employer_name" name="employer_name" value="{{ content.employer_name }}" required>
         </div>
         
         <div class="form-group mb-3">
             <label for="title">عنوان پروژه:</label>
-            <input type="text" class="form-control" id="title" name="title" value="{{ project.title }}" required>
+            <input type="text" class="form-control" id="title" name="title" value="{{ content.title }}" required>
         </div>
         
         <div class="form-group mb-3">
             <label for="address">آدرس:</label>
-            <textarea class="form-control" id="address" name="address" rows="3">{{ project.address or '' }}</textarea>
+            <textarea class="form-control" id="address" name="address" rows="3">{{ content.address or '' }}</textarea>
         </div>
         
         <div class="form-group mb-3">
-            <label for="project_type">نوع پروژه:</label>
-            <select class="form-control" id="project_type" name="project_type" required>
-                <option value="ساخت و ساز" {% if project.project_type == 'ساخت و ساز' %}selected{% endif %}>ساخت و ساز</option>
-                <option value="طراحی معماری" {% if project.project_type == 'طراحی معماری' %}selected{% endif %}>طراحی معماری</option>
-                <option value="نوسازی" {% if project.project_type == 'نوسازی' %}selected{% endif %}>نوسازی</option>
-                <option value="سایر" {% if project.project_type == 'سایر' %}selected{% endif %}>سایر</option>
+            <label for="pcontent_type">نوع پروژه:</label>
+            <select class="form-control" id="content_type" name="content_type" required>
+                <option value="ساخت و ساز" {% if content.content_type == 'ساخت و ساز' %}selected{% endif %}>ساخت و ساز</option>
+                <option value="طراحی معماری" {% if content.content_type == 'طراحی معماری' %}selected{% endif %}>طراحی معماری</option>
+                <option value="نوسازی" {% if content.content_type == 'نوسازی' %}selected{% endif %}>نوسازی</option>
+                <option value="سایر" {% if content.content_type == 'سایر' %}selected{% endif %}>سایر</option>
             </select>
         </div>
         
         <div class="form-group mb-3">
             <label>تصویر فعلی:</label><br>
-            {% if project.image_file and project.image_file != 'default_project.jpg' %}
-                <img src="{{ url_for('static', filename='uploads/projects/' + project.image_file) }}" 
-                     alt="{{ project.title }}" style="max-width: 200px; max-height: 150px; margin: 10px 0;">
+            {% if content.image_file and content.image_file != 'default_content.jpg' %}
+                <img src="{{ url_for('static', filename='uploads/contents/' + content.image_file) }}" 
+                     alt="{{ content.title }}" style="max-width: 200px; max-height: 150px; margin: 10px 0;">
                 <br>
-                <small class="text-muted">فایل فعلی: {{ project.image_file }}</small>
+                <small class="text-muted">فایل فعلی: {{ content.image_file }}</small>
             {% else %}
                 <p class="text-muted">تصویری برای این پروژه آپلود نشده است.</p>
             {% endif %}
@@ -53,12 +53,12 @@
         </div>
         
         <div class="form-group mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="is_visible" name="is_visible" {% if project.is_visible %}checked{% endif %}>
+            <input type="checkbox" class="form-check-input" id="is_visible" name="is_visible" {% if content.is_visible %}checked{% endif %}>
             <label class="form-check-label" for="is_visible">نمایش در سایت</label>
         </div>
         
         <button type="submit" class="btn btn-primary">ذخیره تغییرات</button>
-        <a href="{{ url_for('admin.manage_projects') }}" class="btn btn-secondary">انصراف</a>
+        <a href="{{ url_for('admin.manage_contents') }}" class="btn btn-secondary">انصراف</a>
     </form>
 </div>
 {% endblock %}

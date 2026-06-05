@@ -10,6 +10,7 @@ class UserForm(FlaskForm):
     usertype = SelectField('نوع کاربر', choices=[
         ('user', 'کاربر عادی'),
         ('admin', 'ادمین'),
-        ('super_admin', 'سوپر ادمین')
+        ('super_admin', 'سوپر ادمین'),
+        ('employer','کارفرما')
     ])
     submit = SubmitField('ذخیره')
