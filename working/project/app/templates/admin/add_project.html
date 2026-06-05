@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}افزودن پروژه جدید{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>افزودن پروژه جدید</h2>
+    
+    <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}">
+        
+        <div class="form-group mb-3">
+            <label for="employer_name">نام کارفرما:</label>
+            <input type="text" class="form-control" id="employer_name" name="employer_name" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="title">عنوان پروژه:</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="address">آدرس:</label>
+            <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="project_type">نوع پروژه:</label>
+            <select class="form-control" id="project_type" name="project_type" required>
+                <option value="ساخت و ساز">ساخت و ساز</option>
+                <option value="طراحی معماری">طراحی معماری</option>
+                <option value="نوسازی">نوسازی</option>
+                <option value="سایر">سایر</option>
+            </select>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="image_file">تصویر پروژه:</label>
+            <input type="file" class="form-control" id="image_file" name="image_file" accept="image/*">
+            <small class="form-text text-muted">فرمت‌های مجاز: PNG, JPG, JPEG, GIF, WEBP (حداکثر 16MB)</small>
+        </div>
+        
+        <div class="form-group mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="is_visible" name="is_visible" checked>
+            <label class="form-check-label" for="is_visible">نمایش در سایت</label>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">ذخیره پروژه</button>
+        <a href="{{ url_for('admin.manage_projects') }}" class="btn btn-secondary">انصراف</a>
+    </form>
+</div>
+{% endblock %}

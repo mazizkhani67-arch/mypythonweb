@@ -2,116 +2,137 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="utf-8">
-   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <title>خانه | شرکت مهندسی</title>
-        <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
-        <nav>
-          <img class="to_top" id="toTop" aria-label="بازگشت به بالا"
-          src = "{{url_for('static',filename='icon/up.png')}}">
-        
-          <img class="contact_us" id="contact" aria-label="تماس با ما" 
-          src="{{url_for('static',filename='icon/call.png')}}" 
-          data_url="{{url_for('main.contact')}}">
-          <img class="about_us" id="aboutus" aria-label="درباره ما" 
-          src = "{{url_for('static',filename='icon/info.png')}}"
-          data_url = "{{url_for('main.about')}}">
-          <img class="m_services" id="mservices" aria-label="خدمات" 
-          src = "{{url_for('static',filename='icon/services.png')}}"
-          data_url = "{{url_for('main.services')}}">
-          <img class="home_bt" id="homebt" aria-label="خانه"
-          src = "{{url_for('static',filename='icon/home.png')}}"
-          data_url = "{{url_for('main.home')}}">
-            {% if current_user.is_authenticated %}
-              <img class="log_bt" id="logoutbt" aria-label="دکمه خروج"
-              src = "{{url_for('static',filename='icon/logout.png')}}"
-              data_url = "{{url_for('main.logout')}}">
-            {% else %}
-              <img class="log_bt" id="loginbt" aria-label="صفحه ورود"
-              src = "{{url_for('static',filename='icon/login.png')}}"
-              data_url = "{{url_for('main.login')}}">
-            {% endif %}
-          
-        </nav>
-
-
-
-
-
-
-
-
-
-
-
-
-  <div class="shadow ">
-    
-      
-        <img  class="logo" id="mlogo" src="{{url_for('static',filename='logo/logo4.jpg')}}"
-        data_url = "{{url_for('main.home')}}"> 
-       
-      
-   
-   
-  </div>
-  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <title>{% block title %}شرکت مهندسی{% endblock %}</title>
+  <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
 </head>
 <body>
-      
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <script>
-                Swal.fire({
-                  title: 'پیام',
-                  text: {{ message|tojson }},
-                  icon: {{ ('success' if category == 'success' else 'error' if category == 'danger' else 'info') | tojson }}
-                });
-              </script>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-       
-        
-        
-        {% block content %}
-
-        {% endblock %}
-        <nav>
-          <p class="designer">
-              طراحی سایت توسط مهندس محمد عزیزخانی
-          </p>      
-        </nav>
-      <script>
-            function setupnavigation(id){
-              const element = document.getElementById(id);
-              if (element) {
-                const url = element.getAttribute('data_url');
-                element.addEventListener('click', () => {
-                window.open(url, "_self");
-                });
-              }
-            }
-            setupnavigation('contact');
-            setupnavigation('aboutus');
-            setupnavigation('mservices');
-            setupnavigation('homebt');
-            setupnavigation('logoutbt');
-            setupnavigation('loginbt');
-            setupnavigation('mlogo');
-            const btn=document.getElementById('toTop')
-            window.addEventListener('scroll',()=> {
-              btn.style.opacity = window.scrollY > 300 ? '1' : '0';
-              btn.style.pointerEvents = window.scrollY > 300 ? 'auto' : 'none';
-            });
-            btn.addEventListener('click',()=>{
-              window.scrollTo({top: 0,behavior: 'smooth'});
-            })
-            
-      </script>
-
-
+  <!-- نوار ناوبری بالای صفحه (آیکون‌ها) -->
+  <nav>
+    <img class="to_top" id="toTop" aria-label="بازگشت به بالا"
+         src="{{url_for('static',filename='icon/up.png')}}">
     
-    </body>
-   
+    <img class="contact_us" id="contact" aria-label="تماس با ما" 
+         src="{{url_for('static',filename='icon/register.png')}}" 
+         data_url="{{url_for('main.register')}}">
+    
+    <img class="about_us" id="aboutus" aria-label="درباره ما" 
+         src="{{url_for('static',filename='icon/info.png')}}"
+         data_url="{{url_for('main.about')}}">
+    
+    <img class="m_services" id="mservices" aria-label="خدمات" 
+         src="{{url_for('static',filename='icon/services.png')}}"
+         data_url="{{url_for('main.services')}}">
+    
+    <img class="home_bt" id="homebt" aria-label="خانه"
+         src="{{url_for('static',filename='icon/home.png')}}"
+         data_url="{{url_for('main.home')}}">
+    
+    {% if current_user.is_authenticated %}
+      <img class="log_bt" id="logoutbt" aria-label="دکمه خروج"
+           src="{{url_for('static',filename='icon/logout.png')}}"
+           data_url="{{url_for('main.logout')}}">
+    {% else %}
+      <img class="log_bt" id="loginbt" aria-label="صفحه ورود"
+           src="{{url_for('static',filename='icon/login.png')}}"
+           data_url="{{url_for('main.login')}}">
+    {% endif %}
+  </nav>
+
+  <!-- لوگو -->
+  <div class="shadow">
+    <img class="logo" id="mlogo" src="{{url_for('static',filename='logo/logo4.jpg')}}"
+         data_url="{{url_for('main.home')}}"> 
+  </div>
+
+  <!-- منوی اصلی سایت -->
+  <ul class="nav-menu">
+    <li><a href="{{ url_for('main.home') }}">خانه</a></li>
+    <li><a href="{{ url_for('main.services') }}">خدمات</a></li>
+    <li><a href="{{ url_for('main.about') }}">درباره ما</a></li>
+    <li><a href="{{ url_for('main.contact') }}">تماس با ما</a></li>
+    
+    {% if current_user.is_authenticated %}
+      <li><a href="{{ url_for('main.logout') }}">خروج ({{ current_user.username }})</a></li>
+      
+      {% if current_user.is_super_admin %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            👑 پنل مدیریت
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">📊 داشبورد</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url_for('admin.manage_users') }}">👥 مدیریت کاربران</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('admin.manage_projects') }}">📁 مدیریت پروژه‌ها</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('admin.manage_messages') }}">💬 مدیریت پیام‌ها</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url_for('admin.add_user') }}">➕ افزودن کاربر</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('admin.add_project') }}">➕ افزودن پروژه</a></li>
+          </ul>
+        </li>
+      {% endif %}
+      
+    {% else %}
+      <li><a href="{{ url_for('main.login') }}">ورود</a></li>
+      <li><a href="{{ url_for('main.register') }}">ثبت‌نام</a></li>
+    {% endif %}
+  </ul>
+
+  <!-- پیام‌های فلش با SweetAlert -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <script>
+          Swal.fire({
+            title: 'پیام',
+            text: {{ message|tojson }},
+            icon: {{ ('success' if category == 'success' else 'error' if category == 'danger' else 'info') | tojson }}
+          });
+        </script>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- محتوای اصلی صفحات -->
+  {% block content %}{% endblock %}
+
+  <!-- فوتر -->
+  <nav>
+    <p class="designer">
+      طراحی سایت توسط مهندس محمد عزیزخانی
+    </p>      
+  </nav>
+
+  <!-- اسکریپت‌های جاوااسکریپت -->
+  <script>
+    function setupnavigation(id){
+      const element = document.getElementById(id);
+      if (element) {
+        const url = element.getAttribute('data_url');
+        element.addEventListener('click', () => {
+          window.open(url, "_self");
+        });
+      }
+    }
+    
+    setupnavigation('contact');
+    setupnavigation('aboutus');
+    setupnavigation('mservices');
+    setupnavigation('homebt');
+    setupnavigation('logoutbt');
+    setupnavigation('loginbt');
+    setupnavigation('mlogo');
+    
+    const btn = document.getElementById('toTop');
+    window.addEventListener('scroll', () => {
+      btn.style.opacity = window.scrollY > 300 ? '1' : '0';
+      btn.style.pointerEvents = window.scrollY > 300 ? 'auto' : 'none';
+    });
+    
+    btn.addEventListener('click', () => {
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    });
+  </script>
+</body>
 </html>

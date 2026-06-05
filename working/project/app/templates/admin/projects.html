@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}مدیریت پروژه‌ها{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>مدیریت پروژه‌ها</h1>
+    
+    <div class="action-bar">
+        <a href="{{ url_for('admin.add_project') }}" class="btn btn-success">➕ افزودن پروژه جدید</a>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>عنوان</th>
+                 <th>تصویر</th>
+                <th>کارفرما</th>
+                <th>نوع پروژه</th>
+                <th>وضعیت</th>
+                <th>عملیات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+            <tr>
+                <td>{{ project.id }}</td>
+                <td>
+            {% if project.image_file and project.image_file != 'default_project.jpg' %}
+                <img src="{{ url_for('static', filename='uploads/projects/' + project.image_file) }}" 
+                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+            {% else %}
+                <span class="text-muted">بدون تصویر</span>
+            {% endif %}
+                <td>{{ project.title }}</td>
+                <td>{{ project.employer_name }}</td>
+                <td>{{ project.project_type }}</td>
+                <td>
+                    {% if project.is_visible %}
+                        <span class="badge badge-success">✅ فعال</span>
+                    {% else %}
+                        <span class="badge badge-secondary">⛔ غیرفعال</span>
+                    {% endif %}
+                 </td>
+                <td>
+                    <a href="{{ url_for('admin.toggle_project', project_id=project.id) }}" class="btn btn-sm btn-info">
+                        {% if project.is_visible %}مخفی{% else %}نمایش{% endif %}
+                    </a>
+                    <a href="{{ url_for('admin.edit_project', project_id=project.id) }}" class="btn btn-sm btn-primary">ویرایش</a>
+                    <a href="{{ url_for('admin.delete_project', project_id=project.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('آیا مطمئن هستید؟')">حذف</a>
+                 </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -4,53 +4,56 @@
 
 {% block content %}
      
-   <header class="site-header">
+<header class="site-header">
     <div class="container">
-      <h1> گروه مهندسی کارنیک </h1>
-      
+        <h1> گروه مهندسی کارنیک </h1>
     </div>
-  </header>
+</header>
 
-  <main class="container">
+<main class="container">
     <section class="hero">
-      
-      
-
-      <div class="badges">
-        <span>طراحی معماری</span>
-        <span>طراحی سازه</span>
-        <span>نظارت</span>
-      </div>
-      <h2>طراحی دقیق. اجرا مطمئن.</h2>
-      <p>
-        از ایده تا نقشه و هماهنگی‌های پروژه—با رویکرد مهندسی و کیفیت قابل پیگیری.
-      </p>
+        <div class="badges">
+            <span>طراحی معماری</span>
+            <span>طراحی سازه</span>
+            <span>نظارت</span>
+        </div>
+        <h2>طراحی دقیق. اجرا مطمئن.</h2>
+        <p>
+            از ایده تا نقشه و هماهنگی‌های پروژه—با رویکرد مهندسی و کیفیت قابل پیگیری.
+        </p>
     </section>
 
     <section class="section">
-      <h3>پروژه‌های نمونه</h3>
-      <div class="grid">
-        {% for p in projects %}
-          <article class="card">
-            <img class="projects" src="{{ url_for('static', filename=p.cover_image) }}" alt="{{ p.title }}">
-            <h4>{{ p.title }}</h4>
-            <p class="desc">{{ p.description }}</p>
-            <a class="link" href="{{ url_for('main.services')}}">مشاهده جزئیات</a>
-          </article>
-        {% endfor %}
-      </div>
+        <h3>پروژه‌های نمونه</h3>
+        
+        {% if projects %}
+            <div class="grid">
+                {% for p in projects %}
+                    <article class="card">
+                        {% if p.image_file and p.image_file != 'default_project.jpg' %}
+                            <img class="projects" src="{{ url_for('static', filename='uploads/projects/' + p.image_file) }}" alt="{{ p.title }}">
+                        {% else %}
+                            <img class="projects" src="{{ url_for('static', filename='img/projects/default_project.jpg') }}" alt="{{ p.title }}">
+                        {% endif %}
+                        <h4>{{ p.title }}</h4>
+                        <p class="desc">{{ p.employer_name }}</p>
+                        <p class="desc">{{ p.address or '' }}</p>
+                        <a class="link" href="{{ url_for('main.project_detail', project_id=p.id) }}">مشاهده جزئیات</a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <p>هیچ پروژه‌ای برای نمایش وجود ندارد.</p>
+            </div>
+        {% endif %}
     </section>
+</main>
 
-    <section class="section">
-      
-    </section>
-  </main>
-
-  <footer class="footer">
-    
+<footer class="footer">
     <div class="container">
-      © 2026 دفتر مهندسی کارنیک
+        © 2026 دفتر مهندسی کارنیک
     </div>
-    
-  
+</footer>
+
 {% endblock %}

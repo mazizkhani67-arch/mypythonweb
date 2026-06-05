@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>پنل مدیریت سایت</h2>
+    <p>خوش آمدید {{ current_user.username }} عزیز!</p>
+    
+    <div class="alert alert-info">
+        شما به عنوان <strong>سوپر ادمین</strong> وارد شده‌اید.
+    </div>
+    
+    <h3>لیست کاربران:</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>نام کاربری</th>
+                <th>ایمیل</th>
+                <th>تلفن</th>
+                <th>نوع کاربر</th>
+                <th>سوپر ادمین</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.phone }}</td>
+                <td>{{ user.usertype }}</td>
+                <td>
+                    {% if user.is_super_admin %}
+                    <span class="badge badge-danger">بله</span>
+                    {% else %}
+                    <span class="badge badge-secondary">خیر</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+   
+    
+    <h3>لیست پروژه ها </h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>نام مشتری</th>
+                <th>عنوان</th>
+                <th>آدرس</th>
+                <th>عکس</th>
+                <th>نوع پروژه</th>
+                <th>نمایش در سایت</th>
+                <th>تاریخ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+            <tr>
+                <td>{{ project.id }}</td>
+                <td>{{ project.employer }}</td>
+                <td>{{ project.title }}</td>
+                <td>{{ project.address }}</td>
+                <td>{{ project.image_file }}</td>
+                <td>{{ project.project_type }}</td>
+                <td>{{ project.is_visible }}</td>
+                <td>{{ project.created_at }}</td>
+                <td>
+                    {% if project.is_visible %}
+                    <span class="badge badge-danger">بله</span>
+                    {% else %}
+                    <span class="badge badge-secondary">خیر</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

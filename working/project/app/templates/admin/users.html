@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}مدیریت کاربران{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>مدیریت کاربران</h1>
+    
+    <div class="action-bar">
+        <a href="{{ url_for('admin.add_user') }}" class="btn btn-success">➕ افزودن کاربر جدید</a>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>نام کاربری</th>
+                <th>ایمیل</th>
+                <th>تلفن</th>
+                <th>نوع کاربر</th>
+                <th>عملیات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.phone }}</td>
+                <td>
+                    {% if user.is_super_admin %}
+                        <span class="badge badge-danger">سوپر ادمین</span>
+                    {% elif user.usertype == 'admin' %}
+                        <span class="badge badge-warning">ادمین</span>
+                    {% else %}
+                        <span class="badge badge-secondary">کاربر عادی</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-sm btn-primary">ویرایش</a>
+                    {% if user.id != current_user.id %}
+                    <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('آیا مطمئن هستید؟')">حذف</a>
+                    {% endif %}
+                 </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

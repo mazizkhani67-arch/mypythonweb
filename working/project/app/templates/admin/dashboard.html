@@ -1,0 +1,72 @@
+<!-- templates/admin/dashboard.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>داشبورد مدیریت</h2>
+    <p>خوش آمدید {{ current_user.username }}!</p>
+    
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5>کل کاربران</h5>
+                    <h3>{{ stats.total_users }}</h3>
+                    <a href="{{ url_for('admin.manage_users') }}" class="btn btn-light">مدیریت کاربران</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5>کل پروژه‌ها</h5>
+                    <h3>{{ stats.total_projects }}</h3>
+                    <a href="{{ url_for('admin.manage_projects') }}" class="btn btn-light">مدیریت پروژه‌ها</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5>پیام‌ها</h5>
+                    <h3>{{ stats.total_messages }}</h3>
+                    <a href="{{ url_for('admin.manage_messages') }}" class="btn btn-light">مدیریت پیام‌ها</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    کاربران جدید
+                    <a href="{{ url_for('admin.manage_users') }}" class="btn btn-sm btn-primary float-left">بیشتر</a>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for user in recent_users %}
+                        <li class="list-group-item">{{ user.username }} - {{ user.email }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    پیام‌های جدید
+                    <a href="{{ url_for('admin.manage_messages') }}" class="btn btn-sm btn-primary float-left">بیشتر</a>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for msg in recent_messages %}
+                        <li class="list-group-item">{{ msg.name }} - {{ msg.email }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
