@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from .decorators import super_admin_required
-from .models import User, Project, ContactMessage
+from .models import User, Content, ContactMessage
 from .extensions import db,csrf
 from werkzeug.security import generate_password_hash
 from .admin_form import UserForm
@@ -24,10 +24,10 @@ def dashboard():
     """داشبورد اصلی مدیریت"""
     stats = {
         'total_users': User.query.count(),
-        'total_projects': Project.query.count(),
+        'total_contents': Content.query.count(),
         'total_messages': ContactMessage.query.count(),
         'unread_messages': ContactMessage.query.filter_by(is_read=False).count(),
-        'visible_projects': Project.query.filter_by(is_visible=True).count(),
+        'visible_contents': Content.query.filter_by(is_visible=True).count(),
         'super_admins': User.query.filter_by(is_super_admin=True).count(),
     }
     recent_users = User.query.order_by(User.id.desc()).limit(5).all()
@@ -149,34 +149,38 @@ def delete_user(user_id):
     flash('کاربر با موفقیت حذف شد!', 'success')
     return redirect(url_for('admin.manage_users'))
 
-@admin_bp.route('/projects')
+@admin_bp.route('/content')
 @login_required
 @super_admin_required
-def manage_projects():
-    """مدیریت پروژه‌ها"""
-    projects = Project.query.order_by(Project.created_at.desc()).all()
-    return render_template('admin/projects.html', projects=projects)
-@admin_bp.route('/project/add', methods=['GET', 'POST'])
+def manage_contents():
+    #"""مدیریت محتوا"""
+    contents = Content.query.order_by(Content.created_at.desc()).all()
+    return render_template('admin/contents.html', contents=contents)
+@admin_bp.route('/content/add', methods=['GET', 'POST'])
 @login_required
 @super_admin_required
-def add_project():
+def add_content():
     if request.method == 'POST':
         try:
-            # دریافت اطلاعات فرم
-            employer_name = request.form.get('employer_name')
-            title = request.form.get('title')
-            address = request.form.get('address')
-            project_type = request.form.get('project_type')
-            is_visible = 'is_visible' in request.form
+            # دریافت اطلاعات فرم (بدون created_by)
+            content = Content(
+                source_name=request.form.get('source_name'),
+                title=request.form.get('title'),
+                location=request.form.get('location'),
+                project_type=request.form.get('content_type'),
+                short_description=request.form.get('short_description'),
+                full_content=request.form.get('full_content'),
+                video_url=request.form.get('video_url'),
+                tags=request.form.get('tags'),
+                is_visible='is_visible' in request.form
+            )
             
             # پردازش تصویر
-            image_filename = 'default_project.jpg'  # تصویر پیش‌فرض
+            image_filename = 'default_content.jpg'
             if 'image_file' in request.files:
                 file = request.files['image_file']
                 if file and file.filename and allowed_file(file.filename):
-                    # ایمن سازی نام فایل
                     filename = secure_filename(file.filename)
-                    # اضافه کردن timestamp به نام فایل برای یکتا شدن
                     import time
                     name_parts = filename.rsplit('.', 1)
                     unique_filename = f"{name_parts[0]}_{int(time.time())}.{name_parts[1]}"
@@ -184,65 +188,54 @@ def add_project():
                     # اطمینان از وجود پوشه
                     os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
                     
-                    # ذخیره فایل
                     file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename)
                     file.save(file_path)
                     image_filename = unique_filename
-                    print(f"✅ تصویر ذخیره شد: {image_filename}")
             
-            # ایجاد پروژه جدید
-            project = Project(
-                employer_name=employer_name,
-                title=title,
-                address=address,
-                project_type=project_type,
-                is_visible=is_visible,
-                image_file=image_filename,
-                created_by=current_user.id
-            )
-            
-            db.session.add(project)
+            content.image_file = image_filename
+            db.session.add(content)
             db.session.commit()
             
-            flash('پروژه با موفقیت اضافه شد!', 'success')
-            return redirect(url_for('admin.manage_projects'))
+            flash('محتوا با موفقیت اضافه شد!', 'success')
+            return redirect(url_for('admin.manage_content'))
             
         except Exception as e:
             db.session.rollback()
             print(f"❌ خطا: {e}")
-            flash(f'خطا در افزودن پروژه: {str(e)}', 'danger')
-            return redirect(url_for('admin.add_project'))
+            flash(f'خطا در افزودن محتوا: {str(e)}', 'danger')
+            return redirect(url_for('admin.add_content'))
     
-    return render_template('admin/add_project.html')
+    return render_template('admin/add_content.html')
 
-@admin_bp.route('/project/edit/<int:project_id>', methods=['GET', 'POST'])
+
+@admin_bp.route('/content/edit/<int:content_id>', methods=['GET', 'POST'])
 @login_required
 @super_admin_required
-def edit_project(project_id):
-    project = Project.query.get_or_404(project_id)
+def edit_content(content_id):
+    content = Content.query.get_or_404(content_id)
     
     if request.method == 'POST':
         try:
-            # به‌روزرسانی اطلاعات
-            project.employer_name = request.form.get('employer_name')
-            project.title = request.form.get('title')
-            project.address = request.form.get('address')
-            project.project_type = request.form.get('project_type')
-            project.is_visible = 'is_visible' in request.form
+            # به‌روزرسانی اطلاعات (بدون created_by)
+            content.source_name = request.form.get('source_name')
+            content.title = request.form.get('title')
+            content.location = request.form.get('location')
+            content.content_type = request.form.get('content_type')
+            content.short_description = request.form.get('short_description')
+            content.full_content = request.form.get('full_content')
+            content.video_url = request.form.get('video_url')
+            content.tags = request.form.get('tags')
+            content.is_visible = 'is_visible' in request.form
             
             # پردازش تصویر جدید (اگر آپلود شده باشد)
             if 'image_file' in request.files:
                 file = request.files['image_file']
                 if file and file.filename and allowed_file(file.filename):
-                    # حذف تصویر قدیمی (اگر وجود داشته باشد و تصویر پیش‌فرض نباشد)
-                    if project.image_file and project.image_file != 'default_project.jpg':
-                        old_file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], project.image_file)
-                        # بررسی وجود فایل قبل از حذف
+                    # حذف تصویر قدیمی
+                    if content.image_file and content.image_file != 'default_Content.jpg':
+                        old_file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], content.image_file)
                         if os.path.exists(old_file_path):
                             os.remove(old_file_path)
-                            print(f"🗑️ تصویر قدیمی حذف شد: {project.image_file}")
-                        else:
-                            print(f"⚠️ فایل تصویر قدیمی وجود ندارد: {project.image_file}")
                     
                     # ذخیره تصویر جدید
                     filename = secure_filename(file.filename)
@@ -250,48 +243,54 @@ def edit_project(project_id):
                     name_parts = filename.rsplit('.', 1)
                     unique_filename = f"{name_parts[0]}_{int(time.time())}.{name_parts[1]}"
                     
-                    # اطمینان از وجود پوشه
-                    os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
-                    
                     file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename)
                     file.save(file_path)
-                    project.image_file = unique_filename
-                    print(f"✅ تصویر جدید ذخیره شد: {unique_filename}")
+                    content.image_file = unique_filename
             
             db.session.commit()
-            flash('پروژه با موفقیت به‌روزرسانی شد!', 'success')
-            return redirect(url_for('admin.manage_projects'))
+            flash('محتوا با موفقیت به‌روزرسانی شد!', 'success')
+            return redirect(url_for('admin.manage_contents'))
             
         except Exception as e:
             db.session.rollback()
             print(f"❌ خطا: {e}")
             flash(f'خطا در به‌روزرسانی: {str(e)}', 'danger')
-            return redirect(url_for('admin.edit_project', project_id=project.id))
+            return redirect(url_for('admin.edit_content', content_id=content.id))
     
-    return render_template('admin/edit_project.html', project=project)
+    return render_template('admin/edit_content.html', content=content)
 
-@admin_bp.route('/project/toggle/<int:project_id>')
+
+@admin_bp.route('/content/delete/<int:content_id>')
 @login_required
 @super_admin_required
-def toggle_project(project_id):
-    project = Project.query.get_or_404(project_id)
-    project.is_visible = not project.is_visible
+def delete_content(content_id):
+    content = Content.query.get_or_404(content_id)
+    
+    # حذف فایل تصویر (اگر وجود داشته باشد)
+    if content.image_file and content.image_file != 'default_project.jpg':
+        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], content.image_file)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+    
+    db.session.delete(content)
     db.session.commit()
     
-    status = 'نمایش داده شد' if project.is_visible else 'مخفی شد'
-    flash(f'پروژه {project.title} {status}!', 'success')
-    return redirect(url_for('admin.manage_projects'))
+    flash('محتوا با موفقیت حذف شد!', 'success')
+    return redirect(url_for('admin.manage_contents'))
 
-@admin_bp.route('/project/delete/<int:project_id>')
+@admin_bp.route('/content/toggle/<int:content_id>')
 @login_required
 @super_admin_required
-def delete_project(project_id):
-    project = Project.query.get_or_404(project_id)
-    db.session.delete(project)
+def toggle_content(project_id):
+    content = Content.query.get_or_404(project_id)
+    content.is_visible = not content.is_visible
     db.session.commit()
     
-    flash('پروژه با موفقیت حذف شد!', 'success')
-    return redirect(url_for('admin.manage_projects'))
+    status = 'نمایش داده شد' if content.is_visible else 'مخفی شد'
+    flash(f'پروژه {content.title} {status}!', 'success')
+    return redirect(url_for('admin.manage_contents'))
+
+
 
 @admin_bp.route('/messages')
 @login_required

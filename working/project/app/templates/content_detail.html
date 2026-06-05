@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}{{ content.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>{{ content.title }}</h1>
+    
+    <div class="project-detail">
+        {% if content.image_file and content.image_file != 'default_content.jpg' %}
+            <img src="{{ url_for('static', filename='uploads/contents/' + content.image_file) }}" 
+     
+                 alt="{{ content.title }}" class="img-fluid">
+        {% endif %}
+        
+        <div class="project-info">
+            <p><strong>کارفرما:</strong> {{ content.source_name }}</p>
+            <p><strong>نوع محتوا:</strong> {{ content.content_type }}</p>
+            <p><strong>آدرس:</strong> {{ content.location or 'نامشخص' }}</p>
+            <p><strong>تاریخ ثبت:</strong> {{ content.created_at.strftime('%Y-%m-%d') if content.created_at else '-' }}</p>
+        </div>
+    </div>
+    
+    <a href="{{ url_for('main.home') }}" class="btn btn-primary">بازگشت به صفحه اصلی</a>
+</div>
+{% endblock %}

@@ -26,25 +26,25 @@
     <section class="section">
         <h3>پروژه‌های نمونه</h3>
         
-        {% if projects %}
+        {% if contents %}
             <div class="grid">
-                {% for p in projects %}
+                {% for c in contents %}
                     <article class="card">
-                        {% if p.image_file and p.image_file != 'default_project.jpg' %}
-                            <img class="projects" src="{{ url_for('static', filename='uploads/projects/' + p.image_file) }}" alt="{{ p.title }}">
+                        {% if c.image_file and p.image_file != 'default_content.jpg' %}
+                            <img class="contents" src="{{ url_for('static', filename='uploads/contents/' + c.image_file) }}" alt="{{ c.title }}">
                         {% else %}
-                            <img class="projects" src="{{ url_for('static', filename='img/projects/default_project.jpg') }}" alt="{{ p.title }}">
+                            <img class="contents" src="{{ url_for('static', filename='img/contents/default_content.jpg') }}" alt="{{ p.title }}">
                         {% endif %}
                         <h4>{{ p.title }}</h4>
-                        <p class="desc">{{ p.employer_name }}</p>
-                        <p class="desc">{{ p.address or '' }}</p>
-                        <a class="link" href="{{ url_for('main.project_detail', project_id=p.id) }}">مشاهده جزئیات</a>
+                        <p class="desc">{{ p.source_name }}</p>
+                        <p class="desc">{{ p.location or '' }}</p>
+                        <a class="link" href="{{ url_for('main.content_detail', content_id=p.id) }}">مشاهده جزئیات</a>
                     </article>
                 {% endfor %}
             </div>
         {% else %}
             <div class="alert alert-info">
-                <p>هیچ پروژه‌ای برای نمایش وجود ندارد.</p>
+                <p>هیچ محتوایی برای نمایش وجود ندارد.</p>
             </div>
         {% endif %}
     </section>

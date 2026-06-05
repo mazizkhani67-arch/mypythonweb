@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}مدیریت محتوا{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>مدیریت محتوا</h2>
+    <a href="{{ url_for('admin.add_content') }}" class="btn btn-success mb-3">➕ نوشتن مطلب جدید</a>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>تصویر</th>
+                <th>عنوان</th>
+                <th>نوع</th>
+                <th>وضعیت</th>
+                <th>عملیات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for content in contents %}
+            <tr>
+                <td>{{ content.id }}</td>
+                <td>
+                    {% if content.image_file and content.image_file != 'default_content.jpg' %}
+                        <img src="{{ url_for('static', filename='uploads/contents/' + content.image_file) }}" style="width: 50px;">
+                    {% else %}
+                        <span class="text-muted">بدون تصویر</span>
+                    {% endif %}
+                </td>
+                <td>{{ content.title }}</td>
+                <td>{{ content.content_type }}<\/td>
+                <td>
+                    {% if content.is_visible %}
+                        <span class="badge bg-success">فعال</span>
+                    {% else %}
+                        <span class="badge bg-secondary">غیرفعال</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('admin.edit_content', content_id=content.id) }}" class="btn btn-sm btn-primary">ویرایش</a>
+                    <a href="{{ url_for('admin.toggle_content', content_id=content.id) }}" class="btn btn-sm btn-info">تغییر وضعیت</a>
+                    <a href="{{ url_for('admin.delete_content', content_id=content.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('آیا مطمئن هستید؟')">حذف</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from .models import User,Project,ContactMessage
+from .models import User,Content,ContactMessage
 from .form import LoginForm, RegistrationForm,RequestForm
 from .extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -16,21 +16,21 @@ def landing():
 
 @main.route("/index")
 def home():
-    active_projects = Project.query.filter_by(is_visible=True).order_by(Project.created_at.desc()).all()
-    if not active_projects:
-        SAMPLE_PROJECTS = [
+    active_contents = Content.query.filter_by(is_visible=True).order_by(Content.created_at.desc()).all()
+    if not active_contents:
+        SAMPLE_CONTENTS = [
             {"title": "پروژه اداری جعفرپور", "description": "طراحی و اجرای معماری با تمرکز بر نورگیری.", "cover_image": "img/projects/project1.png"},
             {"title": "پروژه مسکونی روشن", "description": "طراحی نما و چیدمان کاربری.", "cover_image": "img/projects/project2.jpg"},
             {"title": "پروژه اداری آزمایشگاه رستگار", "description": "پلان‌های استاندارد و جزئیات اجرایی.", "cover_image": "img/projects/project2.png"},
         ]
-        return render_template('index.html', projects=SAMPLE_PROJECTS)
-    return render_template('index.html', projects=active_projects)
+        return render_template('index.html', projects=SAMPLE_CONTENTS)
+    return render_template('index.html', projects=active_contents)
 # app/routes.py
-@main.route("/project/<int:project_id>")
+@main.route("/content/<int:content_id>")
 @login_required
-def project_detail(project_id):
-    project = Project.query.get_or_404(project_id)
-    return render_template('project_detail.html', project=project)
+def project_detail(content_id):
+    content = Content.query.get_or_404(content_id)
+    return render_template('content_detail.html', content=content)
 
 @main.route("/login", methods=['GET', 'POST'])
 def login():

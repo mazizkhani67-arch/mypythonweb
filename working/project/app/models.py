@@ -45,27 +45,33 @@ class User(UserMixin, db.Model):
         return f'<User {self.username}>'
 
 
-class Project(db.Model):
-    __tablename__ = 'projects'
+# app/models.py
+from datetime import datetime
+
+# app/models.py
+from datetime import datetime
+
+class Content(db.Model):
+    __tablename__ = 'contents'  # نام نهایی جدول
     
     id = db.Column(db.Integer, primary_key=True)
-    employer_name = db.Column(db.String(100), nullable=False)
-    title = db.Column(db.String(150), nullable=False)
-    address = db.Column(db.Text, nullable=True)
-    image_file = db.Column(db.String(100), nullable=True, default='default_project.jpg')
-    project_type = db.Column(db.String(50), nullable=False)
+    employer_name = db.Column(db.String(100), nullable=False)  # نام کارفرما/منبع
+    title = db.Column(db.String(150), nullable=False)          # عنوان مطلب
+    address = db.Column(db.Text, nullable=True)                # آدرس/مکان
+    image_file = db.Column(db.String(100), nullable=True, default='default_content.jpg')
+    content_type = db.Column(db.String(50), nullable=False)    # نوع محتوا
     is_visible = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # فیلدهای اختیاری برای مدیریت بهتر
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    creator = db.relationship('User', backref='projects')
+    # فیلدهای محتوای غنی
+    short_description = db.Column(db.Text, nullable=True)
+    full_content = db.Column(db.Text, nullable=True)
+    video_url = db.Column(db.String(200), nullable=True)
+    gallery_images = db.Column(db.Text, nullable=True)
+    tags = db.Column(db.String(200), nullable=True)
     
     def __repr__(self):
-        return f"Project('{self.title}', '{self.employer_name}')"
-    
-
-    # app/models.py - اضافه کنید
+        return f"Content('{self.title}')"
 class ContactMessage(db.Model):
     __tablename__ = 'contact_messages'
     
