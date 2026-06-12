@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Flask
+instance/
+.webassets-cache
+.env
+.flaskenv
+.DS_Store
+*.db
+*.sqlite
+*.sqlite3
+
+# فایل‌های حساس
+.env
+.secrets
+config.local.py
+
+# لاگ‌ها
+*.log
+logs/
+
+# آپلودها
+app/static/uploads/content/*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Migration
+migrations/versions/*.pyc

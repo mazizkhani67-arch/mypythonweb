@@ -6,3 +6,7 @@ Flask-Login==0.6.3
 email-validator==2.2.0
 gunicorn==22.0.0
 jdatetime==1.0.0
+python-dotenv==1.2.2
+geoalchemy2
+psycopg2-binary
+folium pyproj

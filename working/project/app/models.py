@@ -15,7 +15,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
     usertype = db.Column(db.String(128), nullable=False, default='user')  # 'admin', 'user', 'super_admin'
      # اضافه کردن با default مقدار
     is_super_admin = db.Column(db.Boolean, default=False, nullable=False)
@@ -85,3 +85,22 @@ class ContactMessage(db.Model):
     
     def __repr__(self):
         return f'<Message from {self.name}>'
+    
+
+class UTMCoordinate(db.Model):
+    __tablename__ = 'utm_coordinates'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    easting = db.Column(db.Float, nullable=False)  # مختصات شرقی
+    northing = db.Column(db.Float, nullable=False)  # مختصات شمالی
+    zone = db.Column(db.Integer, nullable=False)  # ناحیه UTM
+    hemisphere = db.Column(db.String(1), default='N')  # N یا S
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    latitude = db.Column(db.Float, nullable=True)   # اضافه شده
+    longitude = db.Column(db.Float, nullable=True)  # اضافه شده
+    # رابطه با کاربر
+    user = db.relationship('User', backref='utm_coordinates')
+    
+    def __repr__(self):
+        return f'<UTM {self.easting}, {self.northing} Zone {self.zone}>'

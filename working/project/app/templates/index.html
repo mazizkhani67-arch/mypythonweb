@@ -33,7 +33,7 @@
                         {% if c.image_file and c.image_file != 'default_content.jpg' %}
                             <img class="contents" src="{{ url_for('static', filename='uploads/content/' + c.image_file) }}" alt="{{ c.title }}">
                         {% else %}
-                            <img class="contents" src="{{ url_for('static', filename='img/content/default_content.jpg') }}" alt="{{ c.title }}">
+                            <img class="contents" src="{{ url_for('static', filename='uploads/content/default_content.jpg') }}" alt="{{ c.title }}">
                         {% endif %}
                         <h4>{{ c.title }}</h4>
                         <p class="desc">{{ c.source_name }}</p>

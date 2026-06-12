@@ -1,13 +1,21 @@
+# config.py (نسخه ساده - بدون نیاز به .env)
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
-            SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key' # یک کلید مخفی برای امنیت سشن‌ها
-            SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-                'sqlite:///' + os.path.join(basedir, 'database.db')
-            SQLALCHEMY_TRACK_MODIFICATIONS = False # برای جلوگیری از هشدارهای اضافه
-             # تنظیمات آپلود فایل
-            UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'app/static/uploads/content')
-            ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-            MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
+    SECRET_KEY = '2400116326'
+    
+    # اتصال مستقیم به PostgreSQL
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:2400116326@localhost:5432/gis_db'
+    
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_size': 10,
+        'pool_recycle': 3600,
+        'pool_pre_ping': True,
+    }
+    
+    UPLOAD_FOLDER = os.path.join(basedir, 'app/static/uploads/content')
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024

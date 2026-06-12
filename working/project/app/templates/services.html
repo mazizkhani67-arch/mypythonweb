@@ -1,9 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}  خدمات ما {% endblock %}
+{% block title %}خدمات{% endblock %}
 
 {% block content %}
-
-
-     
+<div class="container mt-4">
+    <h2>خدمات ما</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">تبدیل مختصات UTM</h5>
+                    <p class="card-text">
+                        تبدیل مختصات UTM به نقشه و نمایش موقعیت دقیق
+                    </p>
+                    <a href="{{ url_for('main.utm_converter') }}" class="btn btn-primary">
+                        شروع تبدیل
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- سایر سرویس‌ها -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">🗺️ انتخاب مکان روی نقشه</h5>
+                <p class="card-text">
+                    با کلیک روی نقشه، مختصات UTM را دریافت و ذخیره کنید
+                </p>
+                <a href="{{ url_for('main.utm_picker') }}" class="btn btn-primary">
+                    شروع کنید
+                </a>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}تبدیل مختصات UTM{% endblock %}
+
+{% block extra_css %}
+
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>تبدیل مختصات UTM به نقشه</h2>
+    <p>مختصات UTM خود را وارد کنید تا روی نقشه نمایش داده شود.</p>
+    
+    <div class="row">
+        <div class="col-md-5">
+            <div class="coordinate-card">
+                <h4>ورود مختصات UTM</h4>
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="form-group mb-3">
+                        {{ form.easting.label(class="form-label") }}
+                        {{ form.easting(class="form-control", placeholder="مثال: 598765") }}
+                        <small class="form-text text-muted">مختصات شرقی (بین 100,000 تا 999,999)</small>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        {{ form.northing.label(class="form-label") }}
+                        {{ form.northing(class="form-control", placeholder="مثال: 4056789") }}
+                        <small class="form-text text-muted">مختصات شمالی</small>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        {{ form.zone.label(class="form-label") }}
+                        {{ form.zone(class="form-control", placeholder="مثال: 40") }}
+                        <small class="form-text text-muted">ناحیه UTM (1 تا 60)</small>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        {{ form.hemisphere.label(class="form-label") }}
+                        {{ form.hemisphere(class="form-control") }}
+                    </div>
+                    
+                    {{ form.submit(class="btn btn-primary w-100") }}
+                </form>
+            </div>
+            
+            {% if user_coordinates %}
+            <div class="coordinate-card">
+                <h4>تاریخچه مختصات شما</h4>
+                <div class="history-list">
+                    {% for coord in user_coordinates %}
+                    <div class="history-item">
+                        <strong>{{ coord.created_at.strftime('%Y-%m-%d %H:%M') }}</strong><br>
+                        Easting: {{ coord.easting }}<br>
+                        Northing: {{ coord.northing }}<br>
+                        Zone: {{ coord.zone }}{{ coord.hemisphere }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-7">
+            {% if map_html %}
+            <div class="coordinate-card">
+                <h4>موقعیت روی نقشه</h4>
+                {% if coordinates %}
+                <div class="result-box">
+                    <strong>مختصات تبدیل شده (WGS84):</strong><br>
+                    Latitude: {{ coordinates.lat }}<br>
+                    Longitude: {{ coordinates.lon }}<br>
+                    <hr>
+                    <strong>مختصات وارد شده (UTM):</strong><br>
+                    Easting: {{ coordinates.easting }}<br>
+                    Northing: {{ coordinates.northing }}<br>
+                    Zone: {{ coordinates.zone }}
+                </div>
+                {% endif %}
+                <div class="map-container">
+                    {{ map_html|safe }}
+                </div>
+            </div>
+            {% else %}
+            <div class="coordinate-card">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    پس از وارد کردن مختصات، نقشه در اینجا نمایش داده می‌شود.
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // در صورت نیاز، اسکریپت‌های اضافی
+    console.log("UTM Converter loaded");
+</script>
+{% endblock %}

@@ -15,7 +15,8 @@ def create_app(config_class=Config):
     migrate.init_app(app, db) # اتصال migrate به app و db
     
     login_manager.login_view = 'main.login'
-
+    login_manager.login_message = "لطفا برای دسترسی به این صفحه وارد شوید."
+    login_manager.login_message_category = "warning"
     # این خط بسیار مهم است: مدل‌ها را لود می‌کند تا migrate آن‌ها را ببیند
     from . import models 
 
