@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}ویرایش پروژه{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #projectMap {
+        height: 350px !important;
+        width: 100% !important;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        margin-bottom: 15px;
+        z-index: 1;
+        position: relative;
+    }
+    .form-group { margin-bottom: 20px; }
+    .card { border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .current-image { max-width: 200px; margin-top: 10px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-warning text-white">
+            <h3>ویرایش پروژه: {{ project.project_code }}</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.title.label(class="form-label") }}
+                            {{ form.title(class="form-control", value=project.title) }}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.project_type_code.label(class="form-label") }}
+                            {{ form.project_type_code(class="form-control") }}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">کارفرما</label>
+                            {{ form.employer_id(class="form-control") }}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.address.label(class="form-label") }}
+                            {{ form.address(class="form-control", rows="3") }}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows="5") }}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>موقعیت روی نقشه</label>
+                            <div id="projectMap"></div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form.location_lat.label(class="form-label") }}
+                                    {{ form.location_lat(class="form-control", id="lat") }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.location_lon.label(class="form-label") }}
+                                    {{ form.location_lon(class="form-control", id="lon") }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.cover_image.label(class="form-label") }}
+                            {% if project.cover_image %}
+                                <div>
+                                    <img src="{{ url_for('static', filename='uploads/' + project.cover_image) }}" class="current-image img-thumbnail">
+                                </div>
+                            {% endif %}
+                            {{ form.cover_image(class="form-control") }}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.project_zip.label(class="form-label") }}
+                            {% if project.project_zip %}
+                                <p><a href="{{ url_for('static', filename='uploads/' + project.project_zip) }}" target="_blank">فایل موجود</a></p>
+                            {% endif %}
+                            {{ form.project_zip(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    {{ form.submit(class="btn btn-primary btn-lg") }}
+                    <a href="{{ url_for('admin.manage_projects') }}" class="btn btn-secondary btn-lg">انصراف</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const lat = {{ project.location_lat if project.location_lat else 35.6892 }};
+        const lon = {{ project.location_lon if project.location_lon else 51.3890 }};
+        
+        let map = L.map('projectMap').setView([lat, lon], 12);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        
+        let marker = null;
+        if ({{ 'true' if project.location_lat and project.location_lon else 'false' }}) {
+            marker = L.marker([lat, lon]).addTo(map);
+        }
+        
+        map.on('click', function(e) {
+            if (marker) map.removeLayer(marker);
+            marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+            document.getElementById('lat').value = e.latlng.lat.toFixed(6);
+            document.getElementById('lon').value = e.latlng.lng.toFixed(6);
+        });
+    });
+</script>
+{% endblock %}

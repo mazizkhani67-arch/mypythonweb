@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}پیشرفت پروژه{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h3>به‌روزرسانی پیشرفت پروژه: {{ project.project_code }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-4" style="height: 30px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {% if project.progress_percent %}{{ project.progress_percent }}{% else %}0{% endif %}%;">
+                            پیشرفت کلی: {% if project.progress_percent %}{{ project.progress_percent }}{% else %}0{% endif %}%
+                        </div>
+                    </div>
+                    
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    {{ form.user_registered(class="form-check-input") }}
+                                    {{ form.user_registered.label(class="form-check-label") }}
+                                </div>
+                                <div class="form-check mb-2">
+                                    {{ form.project_registered(class="form-check-input") }}
+                                    {{ form.project_registered.label(class="form-check-label") }}
+                                </div>
+                                <div class="form-check mb-2">
+                                    {{ form.employer_confirmed(class="form-check-input") }}
+                                    {{ form.employer_confirmed.label(class="form-check-label") }}
+                                </div>
+                                <div class="form-check mb-2">
+                                    {{ form.album_completed(class="form-check-input") }}
+                                    {{ form.album_completed.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    {{ form.engineering_approved(class="form-check-input") }}
+                                    {{ form.engineering_approved.label(class="form-check-label") }}
+                                </div>
+                                <div class="form-check mb-2">
+                                    {{ form.settlement_done(class="form-check-input") }}
+                                    {{ form.settlement_done.label(class="form-check-label") }}
+                                </div>
+                                <div class="form-check mb-2">
+                                    {{ form.delivered_to_client(class="form-check-input") }}
+                                    {{ form.delivered_to_client.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        <div class="form-check mb-3">
+                            {{ form.send_message(class="form-check-input") }}
+                            {{ form.send_message.label(class="form-check-label") }}
+                        </div>
+                        
+                        <div class="text-center">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                            <a href="{{ url_for('admin.project_detail', project_id=project.id) }}" class="btn btn-secondary btn-lg">انصراف</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // محاسبه خودکار درصد پیشرفت
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkboxes = document.querySelectorAll('.form-check-input');
+        const progressBar = document.querySelector('.progress-bar');
+        
+        // فیلتر کردن چک‌باکس‌های مربوط به پیشرفت (به جز send_message)
+        const progressCheckboxes = [];
+        checkboxes.forEach(cb => {
+            if (cb.id !== 'send_message' && cb.type === 'checkbox') {
+                progressCheckboxes.push(cb);
+            }
+        });
+        
+        function calculateProgress() {
+            let checked = 0;
+            progressCheckboxes.forEach(cb => {
+                if (cb.checked) checked++;
+            });
+            let percent = Math.round(checked / progressCheckboxes.length * 100);
+            if (progressBar) {
+                progressBar.style.width = percent + '%';
+                progressBar.innerHTML = 'پیشرفت کلی: ' + percent + '%';
+            }
+        }
+        
+        progressCheckboxes.forEach(cb => {
+            cb.addEventListener('change', calculateProgress);
+        });
+    });
+</script>
+{% endblock %}

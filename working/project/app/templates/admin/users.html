@@ -33,6 +33,8 @@
                         <span class="badge badge-danger">سوپر ادمین</span>
                     {% elif user.usertype == 'admin' %}
                         <span class="badge badge-warning">ادمین</span>
+                    {% elif user.usertype == 'employer' %}
+                        <span class="badge badge-warning">کارفرما</span>  
                     {% else %}
                         <span class="badge badge-secondary">کاربر عادی</span>
                     {% endif %}

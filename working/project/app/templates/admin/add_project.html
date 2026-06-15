@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}افزودن پروژه جدید{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    /* تنظیمات اصلی فرم */
+    .form-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .form-card {
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .form-card .card-header {
+        background: linear-gradient(135deg, var(--main-color), var(--hover-color));
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    /* تنظیمات نقشه - محدود به 50% عرض و ارتفاع مناسب */
+    .map-wrapper {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .map-container {
+        position: relative;
+        width: 100%;
+        height: 300px;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    #projectMap {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 8px;
+        z-index: 1;
+    }
+    
+    .map-controls {
+        margin-top: 10px;
+        padding: 8px 12px;
+        background: #e9ecef;
+        border-radius: 8px;
+        font-size: 12px;
+        color: #495057;
+        text-align: center;
+    }
+    
+    /* فیلدهای مختصات */
+    .coord-fields {
+        margin-top: 10px;
+    }
+    
+    .coord-fields .form-control {
+        background-color: #f8f9fa;
+        font-family: monospace;
+        font-size: 13px;
+    }
+    
+    /* فیلدهای کاربر جدید */
+    .new-user-fields {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .new-user-fields h5 {
+        color: var(--main-color);
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+    
+    /* دکمه‌ها */
+    .btn-submit {
+        background: linear-gradient(135deg, var(--main-color), var(--hover-color));
+        border: none;
+        padding: 10px 40px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        transition: all 0.3s;
+    }
+    
+    /* ریسپانسیو */
+    @media (max-width: 768px) {
+        .map-container {
+            height: 250px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if form.errors %}
+<div class="alert alert-danger">
+    <strong>خطا در فرم:</strong>
+    <ul>
+    {% for field, errors in form.errors.items() %}
+        {% for error in errors %}
+            <li>{{ form[field].label.text }}: {{ error }}</li>
+        {% endfor %}
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+<!-- در ابتدای بخش content -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="container mt-4 form-container">
+    <div class="card form-card">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">➕ افزودن پروژه جدید</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data" id="projectForm">
+                {{ form.hidden_tag() }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <!-- بخش اطلاعات اصلی -->
+                        <div class="form-group">
+                            {{ form.title.label(class="form-label fw-bold") }}
+                            {{ form.title(class="form-control", placeholder="عنوان پروژه را وارد کنید", required=true) }}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.project_type_code.label(class="form-label fw-bold") }}
+                            {{ form.project_type_code(class="form-control", required=true) }}
+                        </div>
+                        
+                        <!-- در بخش کارفرما -->
+                        <div class="form-group">
+                            <label class="form-label fw-bold">کارفرما</label>
+                            <select class="form-control" id="employer_id" name="employer_id">
+                                {% for value, label in form.employer_id.choices %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div id="newUserFields" class="new-user-fields" style="display: none;">
+                            <h5>📝 اطلاعات کاربر جدید</h5>
+                            <div class="form-group">
+                                {{ form.new_employer_name.label(class="form-label") }}
+                                {{ form.new_employer_name(class="form-control", placeholder="نام و نام خانوادگی") }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.new_employer_email.label(class="form-label") }}
+                                {{ form.new_employer_email(class="form-control", type="email", placeholder="example@domain.com") }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.new_employer_phone.label(class="form-label") }}
+                                {{ form.new_employer_phone(class="form-control", placeholder="09123456789") }}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.address.label(class="form-label fw-bold") }}
+                            {{ form.address(class="form-control", rows="3", placeholder="آدرس کامل پروژه") }}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.description.label(class="form-label fw-bold") }}
+                            {{ form.description(class="form-control", rows="4", placeholder="توضیحات کامل درباره پروژه") }}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <!-- بخش نقشه و فایل‌ها -->
+                        <div class="form-group">
+                            <label class="form-label fw-bold">🗺️ انتخاب موقعیت روی نقشه</label>
+                            <div class="map-wrapper">
+                                <div class="map-container">
+                                    <div id="projectMap"></div>
+                                </div>
+                                <div class="map-controls">
+                                    <i class="fas fa-mouse-pointer"></i> برای تعیین موقعیت، روی نقشه کلیک کنید
+                                </div>
+                            </div>
+                            <div class="row coord-fields">
+                                <div class="col-md-6">
+                                    {{ form.location_lat.label(class="form-label") }}
+                                    {{ form.location_lat(class="form-control", id="lat", readonly=True, placeholder="کلیک روی نقشه") }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.location_lon.label(class="form-label") }}
+                                    {{ form.location_lon(class="form-control", id="lon", readonly=True, placeholder="کلیک روی نقشه") }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.cover_image.label(class="form-label fw-bold") }}
+                            {{ form.cover_image(class="form-control") }}
+                            <small class="text-muted">📷 فایل روکش پروژه (عکس - حداکثر 16 مگابایت)</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.project_zip.label(class="form-label fw-bold") }}
+                            {{ form.project_zip(class="form-control") }}
+                            <small class="text-muted">📦 فایل زیپ کامل پروژه (حداکثر 16 مگابایت)</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    {{ form.submit(class="btn btn-primary btn-lg btn-submit") }}
+                    <a href="{{ url_for('admin.manage_projects') }}" class="btn btn-secondary btn-lg ms-2">❌ انصراف</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ========== مدیریت فیلدهای کاربر جدید ==========
+        const employerSelect = document.getElementById('employerSelect');
+        const newUserFields = document.getElementById('newUserFields');
+        
+        function toggleNewUserFields() {
+            if (employerSelect && employerSelect.value == '0') {
+                newUserFields.style.display = 'block';
+                // الزامی کردن فیلدها
+                const newName = document.getElementById('new_employer_name');
+                const newEmail = document.getElementById('new_employer_email');
+                const newPhone = document.getElementById('new_employer_phone');
+                if (newName) newName.required = true;
+                if (newEmail) newEmail.required = true;
+                if (newPhone) newPhone.required = true;
+            } else {
+                newUserFields.style.display = 'none';
+                // غیرالزامی کردن فیلدها
+                const newName = document.getElementById('new_employer_name');
+                const newEmail = document.getElementById('new_employer_email');
+                const newPhone = document.getElementById('new_employer_phone');
+                if (newName) newName.required = false;
+                if (newEmail) newEmail.required = false;
+                if (newPhone) newPhone.required = false;
+            }
+        }
+        
+        if (employerSelect) {
+            employerSelect.addEventListener('change', toggleNewUserFields);
+            toggleNewUserFields();
+        }
+        
+        // ========== تنظیمات نقشه ==========
+        // مختصات اولیه (یزد)
+        const defaultLat = 31.16083;
+        const defaultLon = 52.65056;
+        
+        // بررسی وجود کانتینر نقشه
+        const mapContainer = document.getElementById('projectMap');
+        if (mapContainer && typeof L !== 'undefined') {
+            // ایجاد نقشه
+            const map = L.map('projectMap').setView([defaultLat, defaultLon], 12);
+            
+            // لایه نقشه
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(map);
+            
+            // کنترل مقیاس
+            L.control.scale({metric: true, imperial: false}).addTo(map);
+            
+            let marker = null;
+            
+            // رویداد کلیک روی نقشه
+            map.on('click', function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+                
+                // حذف مارکر قبلی
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+                
+                // اضافه کردن مارکر جدید
+                marker = L.marker([lat, lng]).addTo(map);
+                
+                // پر کردن فیلدهای مختصات
+                const latField = document.getElementById('lat');
+                const lonField = document.getElementById('lon');
+                if (latField) latField.value = lat.toFixed(6);
+                if (lonField) lonField.value = lng.toFixed(6);
+            });
+            
+            // به‌روزرسانی اندازه نقشه در صورت تغییر پنجره
+            window.addEventListener('resize', function() {
+                setTimeout(function() {
+                    map.invalidateSize();
+                }, 200);
+            });
+            
+            // به‌روزرسانی اولیه
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 300);
+        } else {
+            console.error('Leaflet یا کانتینر نقشه یافت نشد');
+        }
+    });
+</script>
+{% endblock %}

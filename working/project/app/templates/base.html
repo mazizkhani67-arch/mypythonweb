@@ -47,36 +47,29 @@
       </div>
       
       <!-- منوی مدیریت برای سوپر ادمین (زیرمنو) -->
-      {% if current_user.is_authenticated and current_user.is_super_admin %}
-      <div class="menu-item has-submenu" id="adminSubmenuBtn">
-        <div class="menu-item-header">
-          <img src="{{url_for('static',filename='icon/settings.png')}}" alt="مدیریت">
-          <span>پنل مدیریت</span>
-          <span class="submenu-arrow">▼</span>
-        </div>
-        <div class="submenu-items" id="adminSubmenu">
-          <div class="menu-item submenu-item" data-url="{{ url_for('admin.dashboard') }}">
-            <span>📊 داشبورد</span>
-          </div>
-          <div class="menu-item submenu-item" data-url="{{ url_for('admin.manage_users') }}">
-            <span>👥 مدیریت کاربران</span>
-          </div>
-          <div class="menu-item submenu-item" data-url="{{ url_for('admin.manage_contents') }}">
-            <span>📁 مدیریت محتوا</span>
-          </div>
-          <div class="menu-item submenu-item" data-url="{{ url_for('admin.manage_messages') }}">
-            <span>💬 مدیریت پیام‌ها</span>
-          </div>
-          <div class="divider"></div>
-          <div class="menu-item submenu-item" data-url="{{ url_for('admin.add_user') }}">
-            <span>➕ افزودن کاربر</span>
-          </div>
-          <div class="menu-item submenu-item" data-url="{{ url_for('admin.add_content') }}">
-            <span>➕ افزودن محتوا</span>
-          </div>
-        </div>
-      </div>
-      {% endif %}
+      <!-- در بخش منوی مدیریت (پنل مدیریت) در base.html -->
+{% if current_user.is_authenticated and current_user.is_super_admin %}
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+        👑 پنل مدیریت
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">📊 داشبورد</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{{ url_for('admin.manage_users') }}">👥 مدیریت کاربران</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('admin.manage_contents') }}">📁 مدیریت محتوا</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('admin.manage_messages') }}">💬 مدیریت پیام‌ها</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <!-- اضافه کردن منوی پروژه‌ها -->
+        <li><a class="dropdown-item" href="{{ url_for('admin.manage_project_types') }}">📋 مدیریت نوع پروژه</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('admin.manage_projects') }}">📂 مدیریت پروژه‌ها</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('admin.add_project') }}">➕ ایجاد پروژه جدید</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{{ url_for('admin.add_user') }}">➕ افزودن کاربر</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('admin.add_content') }}">➕ افزودن محتوا</a></li>
+    </ul>
+</li>
+{% endif %}
       
       <!-- بخش ورود/خروج -->
       {% if current_user.is_authenticated %}

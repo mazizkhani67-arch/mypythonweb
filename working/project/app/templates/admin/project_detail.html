@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}جزئیات پروژه{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3>جزئیات پروژه: {{ project.project_code }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th width="40%">کد پروژه</th>
+                            <td>{{ project.project_code }}</td>
+                        </tr>
+                        <tr>
+                            <th>عنوان پروژه</th>
+                            <td>{{ project.title }}</td>
+                        </tr>
+                        <tr>
+                            <th>نوع پروژه</th>
+                            <td>{{ project.project_type.name if project.project_type else '-' }}</td>
+                        </tr>
+                        <tr>
+                            <th>کارفرما</th>
+                            <td>{{ project.employer.username if project.employer else '-' }}</td>
+                        </tr>
+                        <tr>
+                            <th>آدرس</th>
+                            <td>{{ project.address or '-' }}</td>
+                        </tr>
+                        <tr>
+                            <th>توضیحات</th>
+                            <td>{{ project.description or '-' }}</td>
+                        </tr>
+                        <tr>
+                            <th>پیشرفت</th>
+                            <td>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {{ project.progress_percent|default(0) }}%;">
+                                        {{ project.progress_percent|default(0) }}%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>تاریخ ایجاد (شمسی)</th>
+                            <td>{{ project.created_at|to_jalali }}</td>
+                        </tr>
+                        <tr>
+                            <th>آخرین بروزرسانی (شمسی)</th>
+                            <td>{{ project.updated_at|to_jalali if project.updated_at else '-' }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5>تصویر روکش پروژه</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            {% if project.cover_image %}
+                                <img src="{{ url_for('static', filename='uploads/projects/' + project.cover_image) }}" 
+                                     class="img-fluid rounded" style="max-height: 250px; max-width: 100%; object-fit: cover;">
+                                <p class="mt-2 text-muted">{{ project.cover_image }}</p>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-image"></i> تصویری برای این پروژه آپلود نشده است.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-3">
+                        <div class="card-header bg-success text-white">
+                            <h5>فایل زیپ پروژه</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            {% if project.project_zip %}
+                                <a href="{{ url_for('static', filename='uploads/projects/' + project.project_zip) }}" 
+                                   class="btn btn-info" download>
+                                    <i class="fas fa-download"></i> دانلود فایل پروژه
+                                </a>
+                                <p class="mt-2 text-muted">{{ project.project_zip }}</p>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-file-archive"></i> فایل زیپی برای این پروژه آپلود نشده است.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if project.location_lat and project.location_lon %}
+                    <div class="card mt-3">
+                        <div class="card-header bg-warning">
+                            <h5>موقعیت مکانی</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="projectMap" style="height: 250px; border-radius: 10px;"></div>
+                            <p class="mt-2">عرض جغرافیایی: {{ project.location_lat }} | طول جغرافیایی: {{ project.location_lon }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                {% if current_user.is_super_admin or current_user.usertype == 'admin' %}
+                <a href="{{ url_for('admin.edit_project', project_id=project.id) }}" class="btn btn-warning">✏️ ویرایش پروژه</a>
+                {% endif %}
+                <a href="{{ url_for('admin.update_project_progress', project_id=project.id) }}" class="btn btn-info">📊 به‌روزرسانی پیشرفت</a>
+                {% if current_user.is_super_admin %}
+                <a href="{{ url_for('admin.delete_project', project_id=project.id) }}" class="btn btn-danger" 
+                   onclick="return confirm('آیا از حذف این پروژه مطمئن هستید؟')">🗑️ حذف پروژه</a>
+                {% endif %}
+                <a href="{{ url_for('admin.manage_projects') }}" class="btn btn-secondary">🔙 بازگشت</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if project.location_lat and project.location_lon %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const lat = {{ project.location_lat }};
+        const lon = {{ project.location_lon }};
+        let map = L.map('projectMap').setView([lat, lon], 15);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        L.marker([lat, lon]).addTo(map).bindPopup('{{ project.title }}');
+        setTimeout(() => { map.invalidateSize(); }, 100);
+    });
+</script>
+{% endif %}
+{% endblock %}

@@ -19,3 +19,7 @@ class Config:
     UPLOAD_FOLDER = os.path.join(basedir, 'app/static/uploads/content')
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'app/static/uploads/projects')
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB

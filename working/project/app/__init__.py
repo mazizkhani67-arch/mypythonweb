@@ -1,45 +1,50 @@
+# app/__init__.py
 from flask import Flask
-from .extensions import db, login_manager, csrf, migrate
+from .extensions import db, login_manager, csrf
 from config import Config
-from .models import User # اینجا هم برای اطمینان
-from .admin_routes import admin_bp  # ← ایمپورت در ابتدا
+import jdatetime  # نصب: pip install jdatetime
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-    app.config['SECRET_KEY'] = '2400116326'
     
     db.init_app(app)
     csrf.init_app(app)
     login_manager.init_app(app)
-    migrate.init_app(app, db) # اتصال migrate به app و db
     
-    login_manager.login_view = 'main.login'
+    login_manager.login_view = "main.login"
     login_manager.login_message = "لطفا برای دسترسی به این صفحه وارد شوید."
-    login_manager.login_message_category = "warning"
-    # این خط بسیار مهم است: مدل‌ها را لود می‌کند تا migrate آن‌ها را ببیند
-    from . import models 
-
+    
+    from . import models
+    
     @login_manager.user_loader
     def load_user(user_id):
-        from .models import User # اینجا هم برای اطمینان
+        from .models import User
         return User.query.get(int(user_id))
     
-    # Routes
+    # ========== فیلتر تاریخ شمسی ==========
+    @app.template_filter('to_jalali')
+    def to_jalali_filter(date):
+        """تبدیل تاریخ میلادی به شمسی"""
+        if date is None:
+            return '-'
+        try:
+            jalali_date = jdatetime.datetime.fromgregorian(datetime=date)
+            return jalali_date.strftime('%Y/%m/%d')
+        except:
+            return str(date)
+    
+    # ثبت Blueprintها
     from .routes import main
     app.register_blueprint(main)
-
-    # Error handlers
-    from .routes import not_found
-    app.register_error_handler(404, not_found)
-
-    # روش دوم: ایمپورت درون تابع (اگر روش اول جواب نداد)
+    
     try:
         from .admin_routes import admin_bp
         app.register_blueprint(admin_bp)
     except ImportError:
-        print("Admin routes not found")
-
-     # ثبت Blueprint مدیریت
+        print("⚠️ Admin routes not found")
+    
+    from .routes import not_found
+    app.register_error_handler(404, not_found)
     
     return app

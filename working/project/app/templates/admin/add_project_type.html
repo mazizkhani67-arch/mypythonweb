@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}افزودن نوع پروژه{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3>افزودن نوع پروژه جدید</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="form-group mb-3">
+                            {{ form.code.label(class="form-label") }}
+                            {{ form.code(class="form-control", placeholder="مثال: 101") }}
+                            <small class="text-muted">کد عددی یکتا</small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control", placeholder="مثال: طراحی پلان") }}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.parent_code.label(class="form-label") }}
+                            {{ form.parent_code(class="form-control") }}
+                            <small class="text-muted">اگر زیردسته است، دسته اصلی را انتخاب کنید</small>
+                        </div>
+                        
+                        <div class="text-center">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('admin.manage_project_types') }}" class="btn btn-secondary">انصراف</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -10,3 +10,4 @@ python-dotenv==1.2.2
 geoalchemy2
 psycopg2-binary
 folium pyproj
+python-dateutil

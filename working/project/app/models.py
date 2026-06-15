@@ -48,8 +48,6 @@ class User(UserMixin, db.Model):
 # app/models.py
 from datetime import datetime
 
-# app/models.py
-from datetime import datetime
 
 class Content(db.Model):
     __tablename__ = 'contents'  # نام نهایی جدول
@@ -104,3 +102,80 @@ class UTMCoordinate(db.Model):
     
     def __repr__(self):
         return f'<UTM {self.easting}, {self.northing} Zone {self.zone}>'
+    
+    # app/models.py - اضافه کردن مدل‌های جدید
+
+class ProjectType(db.Model):
+    """مدل نوع پروژه با کدهای دسته‌بندی"""
+    __tablename__ = 'project_types'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.Integer, unique=True, nullable=False)  # کد عددی (100, 101, ...)
+    name = db.Column(db.String(100), nullable=False)
+    parent_code = db.Column(db.Integer, db.ForeignKey('project_types.code'), nullable=True)
+    category = db.Column(db.String(50), nullable=False)  # 'main' یا 'sub'
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # رابطه برای زیردسته‌ها
+    children = db.relationship('ProjectType', backref=db.backref('parent', remote_side=[code]))
+    
+    def __repr__(self):
+        return f"<ProjectType {self.code}: {self.name}>"
+
+# app/models.py - اضافه کردن فیلد title به مدل Project
+
+class Project(db.Model):
+    __tablename__ = 'projects'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    project_code = db.Column(db.String(50), unique=True, nullable=False)
+    title = db.Column(db.String(200), nullable=False)  # اضافه شود
+    project_type_code = db.Column(db.Integer, db.ForeignKey('project_types.code'), nullable=False)
+    employer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    location_lat = db.Column(db.Float, nullable=True)
+    location_lon = db.Column(db.Float, nullable=True)
+    address = db.Column(db.Text, nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    cover_image = db.Column(db.String(200), nullable=True)
+    project_zip = db.Column(db.String(200), nullable=True)
+    progress_percent = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    # روابط
+    project_type = db.relationship('ProjectType', foreign_keys=[project_type_code])
+    employer = db.relationship('User', foreign_keys=[employer_id], backref='projects_as_employer')
+    creator = db.relationship('User', foreign_keys=[created_by], backref='projects_created')
+
+class ProjectChecklist(db.Model):
+    """چک لیست پیشرفت پروژه"""
+    __tablename__ = 'project_checklists'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    user_registered = db.Column(db.Boolean, default=False)  # 1- ثبت کاربر به عنوان کارفرما
+    project_registered = db.Column(db.Boolean, default=False)  # 2- ثبت پروژه
+    employer_confirmed = db.Column(db.Boolean, default=False)  # 3- تایید کارفرما
+    album_completed = db.Column(db.Boolean, default=False)  # 4- اتمام آلبوم
+    engineering_approved = db.Column(db.Boolean, default=False)  # 5- تایید نظام مهندسی
+    settlement_done = db.Column(db.Boolean, default=False)  # 6- تسویه حساب
+    delivered_to_client = db.Column(db.Boolean, default=False)  # 7- تحویل به مشتری
+    
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    project = db.relationship('Project', backref='checklist')
+
+class ProjectMessage(db.Model):
+    """پیام‌های مربوط به پروژه"""
+    __tablename__ = 'project_messages'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    project = db.relationship('Project', backref='messages')
+    sender = db.relationship('User', foreign_keys=[sender_id])

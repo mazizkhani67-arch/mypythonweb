@@ -38,3 +38,43 @@ class UTMCoodinateForm(FlaskForm):
                         validators=[DataRequired(), NumberRange(min=1, max=60)])
     hemisphere = SelectField('نیمکره', choices=[('N', 'شمالی'), ('S', 'جنوبی')])
     submit = SubmitField('نمایش روی نقشه')
+
+
+    # app/forms.py - اضافه کردن فرم‌های جدید
+
+from wtforms import SelectField, TextAreaField, FileField, IntegerField, HiddenField, FloatField
+from wtforms.validators import Optional
+
+class ProjectTypeForm(FlaskForm):
+    code = IntegerField('کد نوع پروژه', validators=[DataRequired()])
+    name = StringField('نام نوع پروژه', validators=[DataRequired()])
+    parent_code = SelectField('دسته اصلی', coerce=int, choices=[(0, 'دسته اصلی')])
+    submit = SubmitField('ذخیره')
+
+# app/forms.py - اضافه کردن فیلد title به ProjectForm
+
+class ProjectForm(FlaskForm):
+    title = StringField('عنوان پروژه', validators=[DataRequired(), Length(max=200)])
+    project_type_code = SelectField('نوع پروژه', coerce=int, validators=[Optional()])
+    employer_id = SelectField('کارفرما', coerce=int, validators=[DataRequired()])
+    new_employer_name = StringField('نام کاربر جدید', validators=[Optional()])
+    new_employer_email = StringField('ایمیل کاربر جدید', validators=[Optional(), Email()])
+    new_employer_phone = StringField('تلفن کاربر جدید', validators=[Optional()])
+    location_lat = FloatField('عرض جغرافیایی', validators=[Optional()])
+    location_lon = FloatField('طول جغرافیایی', validators=[Optional()])
+    address = TextAreaField('آدرس پروژه', validators=[Optional()])
+    description = TextAreaField('توضیحات', validators=[Optional()])
+    cover_image = FileField('فایل روکش پروژه')
+    project_zip = FileField('فایل زیپ پروژه')
+    submit = SubmitField('ذخیره پروژه')
+
+class ChecklistUpdateForm(FlaskForm):
+    user_registered = BooleanField('ثبت کاربر به عنوان کارفرما')
+    project_registered = BooleanField('ثبت پروژه')
+    employer_confirmed = BooleanField('تایید کارفرما')
+    album_completed = BooleanField('اتمام آلبوم')
+    engineering_approved = BooleanField('تایید نظام مهندسی')
+    settlement_done = BooleanField('تسویه حساب')
+    delivered_to_client = BooleanField('تحویل به مشتری')
+    send_message = BooleanField('آیا نیاز به ارسال پیام هست؟')
+    submit = SubmitField('به‌روزرسانی پیشرفت')
