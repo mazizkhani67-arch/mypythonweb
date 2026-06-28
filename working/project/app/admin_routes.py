@@ -571,6 +571,7 @@ def delete_project(project_id):
     flash(f'پروژه {project_code} با موفقیت حذف شد', 'success')
     return redirect(url_for('admin.manage_projects'))
 
+
 @admin_bp.route('/project/<int:project_id>/progress', methods=['GET', 'POST'])
 @login_required
 def update_project_progress(project_id):
@@ -584,9 +585,28 @@ def update_project_progress(project_id):
     form = ChecklistUpdateForm(obj=checklist)
     
     if form.validate_on_submit():
-        form.populate_obj(checklist)
+        # ====== به‌روزرسانی دستی فیلدها ======
+        # فیلدهای چک لیست اصلی
+        checklist.user_registered = form.user_registered.data
+        checklist.project_registered = form.project_registered.data
+        checklist.employer_confirmed = form.employer_confirmed.data
+        checklist.album_completed = form.album_completed.data
+        checklist.engineering_approved = form.engineering_approved.data
+        checklist.settlement_done = form.settlement_done.data
+        checklist.delivered_to_client = form.delivered_to_client.data
+        
+        # فیلدهای ارسال پیامک
+        checklist.sms_user_registered = form.sms_user_registered.data if hasattr(form, 'sms_user_registered') else False
+        checklist.sms_project_registered = form.sms_project_registered.data if hasattr(form, 'sms_project_registered') else False
+        checklist.sms_employer_confirmed = form.sms_employer_confirmed.data if hasattr(form, 'sms_employer_confirmed') else False
+        checklist.sms_album_completed = form.sms_album_completed.data if hasattr(form, 'sms_album_completed') else False
+        checklist.sms_engineering_approved = form.sms_engineering_approved.data if hasattr(form, 'sms_engineering_approved') else False
+        checklist.sms_settlement_done = form.sms_settlement_done.data if hasattr(form, 'sms_settlement_done') else False
+        checklist.sms_delivered_to_client = form.sms_delivered_to_client.data if hasattr(form, 'sms_delivered_to_client') else False
+        
         checklist.updated_at = datetime.utcnow()
         
+        # محاسبه درصد پیشرفت
         items = [
             checklist.user_registered,
             checklist.project_registered,
@@ -601,10 +621,169 @@ def update_project_progress(project_id):
         
         db.session.commit()
         
-        if form.send_message.data:
-            flash('لطفاً پیام خود را در پنل پیام‌ها ارسال کنید', 'info')
+        # ====== ارسال پیامک برای مراحل تیک خورده ======
+        employer_phone = project.employer.phone
         
-        flash('پیشرفت پروژه با موفقیت به‌روزرسانی شد', 'success')
+        if employer_phone:
+            sms_fields = [
+                ('sms_user_registered', 'ثبت کاربر به عنوان کارفرما', checklist.user_registered),
+                ('sms_project_registered', 'ثبت پروژه', checklist.project_registered),
+                ('sms_employer_confirmed', 'تایید کارفرما', checklist.employer_confirmed),
+                ('sms_album_completed', 'اتمام آلبوم', checklist.album_completed),
+                ('sms_engineering_approved', 'تایید نظام مهندسی', checklist.engineering_approved),
+                ('sms_settlement_done', 'تسویه حساب', checklist.settlement_done),
+                ('sms_delivered_to_client', 'تحویل به مشتری', checklist.delivered_to_client),
+            ]
+            
+            for sms_field, step_name, is_checked in sms_fields:
+                if is_checked and getattr(checklist, sms_field, False):
+                    try:
+                        from utils.sms import send_project_sms
+                        
+                        message = f"""
+                        پروژه {project.project_code}
+                        مرحله: {step_name}
+                        پیشرفت کلی: {progress}%
+                        """
+                        
+                        result = send_project_sms(
+                            phone_number=employer_phone,
+                            message=message,
+                            project_code=project.project_code,
+                            step_name=step_name
+                        )
+                        
+                        if result.get('success'):
+                            flash(f'✅ پیامک مرحله "{step_name}" ارسال شد', 'success')
+                        else:
+                            flash(f'⚠️ خطا در ارسال پیامک مرحله "{step_name}": {result.get("error", "نامشخص")}', 'danger')
+                            
+                    except Exception as e:
+                        flash(f'⚠️ خطا در ارسال پیامک: {str(e)}', 'danger')
+        else:
+            flash('⚠️ شماره تلفن کارفرما ثبت نشده است!', 'warning')
+        
+        flash('✅ پیشرفت پروژه با موفقیت به‌روزرسانی شد', 'success')
         return redirect(url_for('admin.project_detail', project_id=project.id))
     
+    # اگر فرم اعتبارسنجی نشد، خطاها را نمایش بده
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f'خطا در فیلد {field}: {error}', 'danger')
+    
     return render_template('admin/project_progress.html', project=project, form=form)
+
+
+# app/admin_routes.py
+# ... بخش‌های قبلی ...
+
+# ==================== مدیریت پیامک ====================
+@admin_bp.route('/sms')
+@login_required
+@super_admin_required
+def sms_panel():
+    """پنل مدیریت پیامک"""
+    form = SMSForm()
+    
+    # پر کردن لیست پروژه‌ها
+    projects = Project.query.all()
+    form.project_id.choices = [(0, 'بدون پروژه')] + [(p.id, f"{p.project_code} - {p.title}") for p in projects]
+    
+    return render_template('admin/sms_panel.html', form=form)
+
+@admin_bp.route('/sms/send', methods=['POST'])
+@login_required
+@super_admin_required
+def send_sms():
+    """ارسال پیامک با سرویس پترن"""
+    form = SMSForm()
+    
+    # پر کردن لیست پروژه‌ها (برای بازگرداندن فرم در صورت خطا)
+    projects = Project.query.all()
+    form.project_id.choices = [(0, 'بدون پروژه')] + [(p.id, f"{p.project_code} - {p.title}") for p in projects]
+    
+    if form.validate_on_submit():
+        recipient = form.recipient.data
+        project_id = form.project_id.data
+        custom_step = form.custom_step.data
+        
+        # دریافت اطلاعات پروژه
+        project = None
+        project_code = 'بدون پروژه'
+        progress = 0
+        step_name = custom_step or 'به‌روزرسانی'
+        
+        if project_id > 0:
+            project = Project.query.get(project_id)
+            if project:
+                project_code = project.project_code
+                progress = project.progress_percent or 0
+                # اگر شماره تلفن از پروژه گرفته نشده، از فرم استفاده کن
+                if not recipient:
+                    recipient = project.employer.phone if project.employer else None
+        
+        if not recipient:
+            flash('⚠️ شماره تلفن گیرنده وارد نشده است!', 'danger')
+            return render_template('admin/sms_panel.html', form=form)
+        
+        try:
+            from utils.sms import send_project_sms
+            
+            result = send_project_sms(
+                phone_number=recipient,
+                project_code=project_code,
+                step_name=step_name,
+                progress_percent=progress
+            )
+            
+            if result.get('success'):
+                flash(f'✅ پیامک با موفقیت ارسال شد (شناسه: {result.get("message_id", "نامشخص")})', 'success')
+            else:
+                flash(f'❌ خطا در ارسال پیامک: {result.get("error", "نامشخص")}', 'danger')
+                
+        except ImportError:
+            flash('❌ ماژول ارسال پیامک یافت نشد!', 'danger')
+        except Exception as e:
+            flash(f'❌ خطا در ارسال پیامک: {str(e)}', 'danger')
+        
+        return redirect(url_for('admin.sms_panel'))
+    
+    # اگر فرم اعتبارسنجی نشد
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(f'خطا در فیلد {field}: {error}', 'danger')
+    
+    return render_template('admin/sms_panel.html', form=form)
+
+@admin_bp.route('/sms/project/<int:project_id>')
+@login_required
+@super_admin_required
+def sms_project_info(project_id):
+    """دریافت اطلاعات پروژه برای ارسال پیامک"""
+    project = Project.query.get_or_404(project_id)
+    
+    employer_phone = project.employer.phone if project.employer else None
+    employer_name = project.employer.username if project.employer else None
+    
+    return jsonify({
+        'success': True,
+        'phone': employer_phone,
+        'name': employer_name,
+        'project_code': project.project_code,
+        'title': project.title,
+        'progress': project.progress_percent or 0
+    })
+
+@admin_bp.route('/sms/templates')
+@login_required
+@super_admin_required
+def sms_templates():
+    """دریافت الگوهای پیامک"""
+    templates = {
+        'progress': 'پروژه {0} با پیشرفت {1}% به‌روزرسانی شد. مرحله: {2}',
+        'complete': 'پروژه {0} با موفقیت تکمیل شد. پیشرفت: {1}%',
+        'approval': 'لطفاً نسبت به تایید پروژه {0} اقدام فرمایید. مرحله: {1}',
+        'step': 'پروژه {0} به مرحله جدید رسید. مرحله: {1} - پیشرفت: {2}%'
+    }
+    return jsonify({'success': True, 'templates': templates})

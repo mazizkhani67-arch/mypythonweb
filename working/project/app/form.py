@@ -78,3 +78,17 @@ class ChecklistUpdateForm(FlaskForm):
     delivered_to_client = BooleanField('تحویل به مشتری')
     send_message = BooleanField('آیا نیاز به ارسال پیام هست؟')
     submit = SubmitField('به‌روزرسانی پیشرفت')
+
+    # app/forms.py
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FileField, IntegerField, FloatField, HiddenField
+from wtforms.validators import DataRequired, Email, Length, EqualTo, Optional, NumberRange
+
+# ... سایر فرم‌ها ...
+
+class SMSForm(FlaskForm):
+    recipient = StringField('گیرنده (شماره تلفن)', validators=[DataRequired(), Length(min=11, max=11)])
+    project_id = SelectField('پروژه مرتبط', coerce=int, validators=[Optional()])
+    custom_step = StringField('مرحله سفارشی', validators=[Optional()])
+    message = TextAreaField('پیش‌نمایش پیام', validators=[DataRequired()])
+    submit = SubmitField('ارسال پیامک')

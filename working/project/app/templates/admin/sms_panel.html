@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}پنل ارسال پیامک{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sms-card {
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    .sms-card .card-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+    }
+    .message-preview {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        min-height: 100px;
+        border: 1px solid #dee2e6;
+        white-space: pre-wrap;
+    }
+    .recipient-info {
+        background: #e9ecef;
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+        font-size: 14px;
+    }
+    .template-buttons .btn {
+        margin: 3px;
+        font-size: 12px;
+    }
+    .pattern-preview {
+        background: #f8f9fa;
+        border: 1px solid #28a745;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        font-family: monospace;
+        direction: ltr;
+        text-align: left;
+    }
+    .pattern-preview .highlight {
+        color: #28a745;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="card sms-card">
+                <div class="card-header text-white">
+                    <h3 class="mb-0">📨 ارسال پیامک با سرویس پترن</h3>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>الگوی پیامک:</strong>
+                        <div class="pattern-preview mt-2">
+                            پروژه <span class="highlight">{0}</span> با پیشرفت <span class="highlight">{1}</span>% به‌روزرسانی شد. مرحله: <span class="highlight">{2}</span>
+                        </div>
+                        <small class="text-muted">متغیرهای {0}، {1} و {2} به‌ترتیب با کد پروژه، درصد پیشرفت و مرحله جایگزین می‌شوند</small>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('admin.send_sms') }}" id="smsForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.project_id.label(class="form-label fw-bold") }}
+                                    {{ form.project_id(class="form-control", id="projectSelect") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.custom_step.label(class="form-label fw-bold") }}
+                                    {{ form.custom_step(class="form-control", id="customStep", placeholder="مرحله به‌روزرسانی") }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.recipient.label(class="form-label fw-bold") }}
+                            <div class="input-group">
+                                {{ form.recipient(class="form-control", id="recipientPhone", placeholder="09123456789") }}
+                                <button type="button" class="btn btn-outline-secondary" id="fillPhoneBtn">
+                                    <i class="fas fa-user"></i> از پروژه
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-bold">الگوهای سریع</label>
+                            <div class="template-buttons">
+                                <button type="button" class="btn btn-outline-primary btn-sm template-btn" 
+                                        data-template="پروژه {0} با پیشرفت {1}% به‌روزرسانی شد. مرحله: {2}">
+                                    پیشرفت پروژه
+                                </button>
+                                <button type="button" class="btn btn-outline-success btn-sm template-btn" 
+                                        data-template="پروژه {0} با پیشرفت {1}% با موفقیت تکمیل شد. مرحله: {2}">
+                                    تکمیل پروژه
+                                </button>
+                                <button type="button" class="btn btn-outline-warning btn-sm template-btn" 
+                                        data-template="لطفاً نسبت به تایید پروژه {0} اقدام فرمایید. مرحله: {1}">
+                                    درخواست تایید
+                                </button>
+                                <button type="button" class="btn btn-outline-info btn-sm template-btn" 
+                                        data-template="پروژه {0} به مرحله جدید رسید. مرحله: {1} - پیشرفت: {2}%">
+                                    مرحله جدید
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.message.label(class="form-label fw-bold") }}
+                            {{ form.message(class="form-control", rows="5", id="messageText", placeholder="متن پیام را وارد کنید...") }}
+                            <div class="mt-2">
+                                <small class="text-muted">تعداد کاراکترها: <span id="charCount">0</span></small>
+                            </div>
+                        </div>
+                        
+                        <div class="recipient-info" id="recipientInfo" style="display: none;">
+                            <i class="fas fa-info-circle"></i>
+                            <span id="recipientInfoText"></span>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            {{ form.submit(class="btn btn-success btn-lg px-5") }}
+                            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary btn-lg">بازگشت</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // شمارش کاراکترها
+        const messageText = document.getElementById('messageText');
+        const charCount = document.getElementById('charCount');
+        
+        messageText.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+        
+        // دریافت اطلاعات از پروژه
+        const projectSelect = document.getElementById('projectSelect');
+        const recipientPhone = document.getElementById('recipientPhone');
+        const recipientInfo = document.getElementById('recipientInfo');
+        const recipientInfoText = document.getElementById('recipientInfoText');
+        const customStep = document.getElementById('customStep');
+        const messageField = document.getElementById('messageText');
+        
+        projectSelect.addEventListener('change', function() {
+            const projectId = this.value;
+            if (projectId > 0) {
+                fetch(`/admin/sms/project/${projectId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (data.phone) {
+                                recipientPhone.value = data.phone;
+                                recipientInfo.style.display = 'block';
+                                recipientInfoText.textContent = `📋 ارسال به: ${data.name || 'کارفرما'} - پروژه ${data.project_code} (${data.title}) | پیشرفت: ${data.progress}%`;
+                            } else {
+                                recipientInfo.style.display = 'block';
+                                recipientInfoText.textContent = `⚠️ برای پروژه ${data.project_code} شماره تلفن ثبت نشده است!`;
+                                recipientInfo.style.background = '#fff3cd';
+                            }
+                            
+                            // پیش‌نمایش پیام
+                            const template = `پروژه {0} با پیشرفت {1}% به‌روزرسانی شد. مرحله: {2}`;
+                            const preview = template.replace('{0}', data.project_code)
+                                                  .replace('{1}', data.progress || 0)
+                                                  .replace('{2}', customStep.value || 'مرحله جدید');
+                            messageField.value = preview;
+                            charCount.textContent = preview.length;
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            } else {
+                recipientInfo.style.display = 'none';
+            }
+        });
+        
+        // دکمه پر کردن شماره تلفن
+        document.getElementById('fillPhoneBtn').addEventListener('click', function() {
+            if (projectSelect.value > 0) {
+                projectSelect.dispatchEvent(new Event('change'));
+            } else {
+                alert('⚠️ لطفاً ابتدا یک پروژه را انتخاب کنید');
+            }
+        });
+        
+        // الگوهای سریع
+        document.querySelectorAll('.template-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const template = this.dataset.template;
+                const projectCode = document.getElementById('projectSelect');
+                const progress = 0;
+                const step = document.getElementById('customStep').value || 'مرحله جدید';
+                
+                let preview = template;
+                if (projectCode.value > 0) {
+                    // دریافت کد پروژه از دیتابیس
+                    fetch(`/admin/sms/project/${projectCode.value}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                preview = template.replace('{0}', data.project_code)
+                                                 .replace('{1}', data.progress || 0)
+                                                 .replace('{2}', step);
+                                messageField.value = preview;
+                                charCount.textContent = preview.length;
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                } else {
+                    preview = template.replace('{0}', 'XXXX')
+                                     .replace('{1}', '0')
+                                     .replace('{2}', step);
+                    messageField.value = preview;
+                    charCount.textContent = preview.length;
+                }
+            });
+        });
+        
+        // به‌روزرسانی پیش‌نمایش با تغییر مرحله
+        customStep.addEventListener('input', function() {
+            if (projectSelect.value > 0) {
+                projectSelect.dispatchEvent(new Event('change'));
+            }
+        });
+    });
+</script>
+{% endblock %}

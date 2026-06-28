@@ -1,0 +1,8 @@
+
+# aiohttp حذف شد چون balebot از آن استفاده نمی‌کند
+requests 
+python-dotenv 
+apscheduler 
+pytz 
+openpyxl 
+persiantools
