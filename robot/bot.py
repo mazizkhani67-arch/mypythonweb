@@ -16,6 +16,7 @@ load_dotenv()
 from config import Config
 from database import Database
 from excel_report import ExcelReporter
+from utils import to_jalali, to_jalali_with_time, get_jalali_today, get_jalali_month_name, format_jalali_date_range
 
 # تنظیم لاگ
 logging.basicConfig(
@@ -162,13 +163,18 @@ class BaleBot:
                     description=description
                 )
                 
+                # تاریخ شمسی
+                jalali_date = get_jalali_today()
+                jalali_time = datetime.now().strftime('%H:%M')
+                
                 response = (
                     f"✅ هزینه ثبت شد:\n"
                     f"📍 {chat_title}\n"
                     f"💰 مبلغ: {amount:,} تومان\n"
                     f"📝 توضیحات: {description}\n"
                     f"📂 دسته‌بندی: {category}\n"
-                    f"🕐 زمان: {datetime.now().strftime('%H:%M')}\n"
+                    f"📅 تاریخ: {jalali_date}\n"
+                    f"🕐 زمان: {jalali_time}\n"
                     f"👤 ثبت کننده: {username}"
                 )
                 self.send_message(chat_id, response)
@@ -254,7 +260,8 @@ class BaleBot:
             self.send_monthly_report(chat_id, group_name)
         elif text == '/total':
             total = db.get_total_today(chat_id)
-            self.send_message(chat_id, f"💰 مجموع هزینه‌های امروز گروه {group_name}: {total:,} تومان")
+            jalali_date = get_jalali_today()
+            self.send_message(chat_id, f"💰 مجموع هزینه‌های امروز گروه {group_name} ({jalali_date}): {total:,} تومان")
         elif text == '/export':
             self.export_weekly_report(chat_id, group_name)
         elif text == '/groups':
@@ -263,14 +270,15 @@ class BaleBot:
     def send_today_report(self, chat_id, group_name):
         """ارسال گزارش امروز برای یک گروه خاص (فقط متن)"""
         today_data = db.get_daily_summary(chat_id)
+        jalali_today = get_jalali_today()
         
         if not today_data['category_summary'] and not today_data['user_summary']:
-            self.send_message(chat_id, f"📊 گزارش امروز گروه {group_name}:\nهیچ هزینه‌ای ثبت نشده است.")
+            self.send_message(chat_id, f"📊 گزارش امروز گروه {group_name} ({jalali_today}):\nهیچ هزینه‌ای ثبت نشده است.")
             return
         
         report = f"📊 **گزارش هزینه‌های امروز گروه {group_name}**\n"
+        report += f"📅 تاریخ: {jalali_today}\n"
         report += "═" * 30 + "\n\n"
-        report += f"📅 تاریخ: {date.today().strftime('%Y/%m/%d')}\n\n"
         
         if today_data['category_summary']:
             report += "📂 **دسته‌بندی‌ها:**\n"
@@ -294,6 +302,9 @@ class BaleBot:
         today = date.today()
         week_start = today - timedelta(days=7)
         
+        jalali_week_start = to_jalali(week_start)
+        jalali_today = to_jalali(today)
+        
         expenses = db.get_expenses_by_date_range(
             chat_id,
             week_start.isoformat(),
@@ -301,12 +312,12 @@ class BaleBot:
         )
         
         if not expenses:
-            self.send_message(chat_id, f"📊 گزارش هفتگی گروه {group_name}:\nهیچ هزینه‌ای ثبت نشده است.")
+            self.send_message(chat_id, f"📊 گزارش هفتگی گروه {group_name} ({jalali_week_start} تا {jalali_today}):\nهیچ هزینه‌ای ثبت نشده است.")
             return
         
         # ============ گزارش متنی (فقط در گروه) ============
         report = f"📊 **گزارش هفتگی گروه {group_name}**\n"
-        report += f"📅 از {week_start.strftime('%Y/%m/%d')} تا {today.strftime('%Y/%m/%d')}\n"
+        report += f"📅 از {jalali_week_start} تا {jalali_today}\n"
         report += "═" * 30 + "\n\n"
         
         # آماده‌سازی داده‌ها
@@ -329,13 +340,15 @@ class BaleBot:
         # نمایش خلاصه روزانه
         report += "📅 **خلاصه روزانه:**\n"
         for expense_date, total in sorted(daily_totals.items()):
-            report += f"   {expense_date}: {total:,} تومان\n"
+            jalali_date = to_jalali(datetime.strptime(expense_date, '%Y-%m-%d').date())
+            report += f"   {jalali_date}: {total:,} تومان\n"
         report += "\n"
         
         # نمایش جزئیات هر روز (۳ مورد اول)
         report += "📋 **جزئیات هزینه‌ها:**\n"
         for expense_date, details in sorted(daily_details.items()):
-            report += f"   📅 {expense_date}:\n"
+            jalali_date = to_jalali(datetime.strptime(expense_date, '%Y-%m-%d').date())
+            report += f"   📅 {jalali_date}:\n"
             for category, amount, description, username in details[:3]:
                 report += f"      • {category}: {amount:,} تومان - {description} ({username})\n"
             if len(details) > 3:
@@ -372,6 +385,10 @@ class BaleBot:
         today = date.today()
         month_start = date(today.year, today.month, 1)
         
+        # تاریخ شمسی
+        jalali_month_start = to_jalali(month_start)
+        jalali_today = to_jalali(today)
+        
         expenses = db.get_expenses_by_date_range(
             chat_id,
             month_start.isoformat(),
@@ -379,11 +396,11 @@ class BaleBot:
         )
         
         if not expenses:
-            self.send_message(chat_id, f"📊 گزارش ماهانه گروه {group_name}:\nهیچ هزینه‌ای ثبت نشده است.")
+            self.send_message(chat_id, f"📊 گزارش ماهانه گروه {group_name} ({jalali_month_start} تا {jalali_today}):\nهیچ هزینه‌ای ثبت نشده است.")
             return
         
         report = f"📊 **گزارش ماهانه گروه {group_name}**\n"
-        report += f"📅 {month_start.strftime('%B %Y')}\n"
+        report += f"📅 از {jalali_month_start} تا {jalali_today}\n"
         report += "═" * 30 + "\n\n"
         
         # محاسبه آمار
@@ -456,12 +473,15 @@ class BaleBot:
         today = date.today()
         week_start = today - timedelta(days=7)
         
+        jalali_week_start = to_jalali(week_start)
+        jalali_today = to_jalali(today)
+        
         try:
             # تولید فایل اکسل
             filepath = excel_reporter.generate_weekly_report(chat_id, week_start, today, group_name)
             
             if filepath:
-                caption = f"📊 گزارش اکسل هفتگی گروه {group_name}\nاز {week_start.strftime('%Y/%m/%d')} تا {today.strftime('%Y/%m/%d')}"
+                caption = f"📊 گزارش اکسل هفتگی گروه {group_name}\nاز {jalali_week_start} تا {jalali_today}"
                 
                 # ارسال به گروه
                 self.send_document(chat_id, filepath, caption)
@@ -474,7 +494,7 @@ class BaleBot:
                             self.send_document(
                                 recipient_id.strip(), 
                                 filepath, 
-                                f"📊 گزارش هفتگی گروه {group_name}\nاز {week_start.strftime('%Y/%m/%d')} تا {today.strftime('%Y/%m/%d')}"
+                                f"📊 گزارش هفتگی گروه {group_name}\nاز {jalali_week_start} تا {jalali_today}"
                             )
                             logger.info(f"Excel sent to recipient: {recipient_id}")
                 
